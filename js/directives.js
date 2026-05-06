@@ -20,6 +20,17 @@ directives.directive('chromeApp', function(){
     };
 });
 
+directives.directive('hideOnError', function(){
+    return {
+        restrict: 'A',
+        link: function($scope, $element) {
+            $element.bind('error', function() {
+                $element.css('display', 'none');
+            });
+        }
+    };
+});
+
 directives.directive('chromeLaunch', ['$log', 'Apps', function($log, Apps){
     return {
         // attribute only

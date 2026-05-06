@@ -30,8 +30,17 @@
                 <a ng-href="{{ site.url }}" ng-title="{{ site.title }}"
                    target="_self" class="app-icon-container">
                     <div class="site-preview">
-                        {{ site.url }}
-                        <img class="site-preview-favicon" ng-src="chrome://favicon/{{ site.url }}" />
+                        <img class="site-preview-image"
+                             ng-src="chrome://thumb/{{ site.url }}"
+                             hide-on-error
+                             alt="" />
+                        <div class="site-preview-fallback">
+                            <img class="site-preview-icon"
+                                 ng-src="chrome://favicon/{{ site.url }}"
+                                 alt="" />
+                            <span class="site-preview-title">{{ site.title }}</span>
+                            <span class="site-preview-url">{{ site.url | domain }}</span>
+                        </div>
                     </div>
 
                     <span class="app-desc">{{ site.title }}</span>

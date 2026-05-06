@@ -33,3 +33,16 @@ filters.filter('iconsize', function(){
         }
     };
 });
+
+filters.filter('domain', function(){
+    return function(input){
+        if(!input) {
+            return '';
+        }
+
+        var parser = document.createElement('a');
+        parser.href = input;
+
+        return parser.hostname || input;
+    };
+});

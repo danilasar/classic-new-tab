@@ -116,33 +116,70 @@ div[app]:hover .app-actions {
 }
 
 .site-preview {
-    background-color: #ddd;
+    background-color: #f3f3f3;
     border: 1px solid #ddd;
     border-radius: 5px;
-    box-shadow: inset 0 0 1em #999;
+    box-shadow: inset 0 0 1em rgba(0,0,0,0.12);
     box-sizing: border-box;
     height: 150px;
     margin: 0 auto 16px auto;
     overflow: hidden;
-    padding: 1em;
-    padding-top: 35%;
     position: relative;
-    text-overflow: ellipsis;
     width: 150px;
 }
 
-.site-preview:hover {
-    background-color: #e3e3e3;
-    border: 1px solid #999;
-    border-shadow-color: #666;
+.site-preview-image {
+    background-color: #f3f3f3;
+    display: block;
+    height: 100%;
+    left: 0;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 2;
 }
 
-.site-preview-favicon {
-    bottom: 6px;
-    height: 16px;
-    left: calc(50% - 8px);
-    position: absolute;
-    width: 16px;
+.site-preview-fallback {
+    box-sizing: border-box;
+    color: #777;
+    height: 100%;
+    padding: 24px 12px 12px 12px;
+    text-align: center;
+    width: 100%;
+}
+
+.site-preview-icon {
+    display: block;
+    height: 32px;
+    margin: 0 auto 12px auto;
+    width: 32px;
+}
+
+.site-preview-title,
+.site-preview-url {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.site-preview-title {
+    color: #555;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.site-preview-url {
+    color: #999;
+    font-size: 11px;
+}
+
+.site-preview:hover {
+    background-color: #e9e9e9;
+    border: 1px solid #999;
+    border-shadow-color: #666;
 }
 
 .container {
