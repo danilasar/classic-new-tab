@@ -26,13 +26,34 @@
         </div>
 
         <div class="container top-sites-container" ng-show="tabs.show_top">
+            <div class="top-sites-tools">
+                <button class="top-site-add-toggle"
+                        ng-click="showAddTopSite=!showAddTopSite"
+                        title="Add site"
+                        type="button">
+                    <i class="fa fa-plus"></i>
+                </button>
+                <form class="top-site-add-form"
+                      ng-show="showAddTopSite"
+                      ng-submit="addTopSite($event)">
+                    <input ng-model="newTopSite.title"
+                           placeholder="Title"
+                           type="text" />
+                    <input ng-model="newTopSite.url"
+                           placeholder="URL"
+                           type="text" />
+                    <button title="Add site" type="submit">
+                        <i class="fa fa-check"></i>
+                    </button>
+                </form>
+            </div>
             <div ng-repeat="site in top" class="app-icon top-site">
                 <a ng-href="{{ site.url }}" ng-title="{{ site.title }}"
                    target="_self" class="app-icon-container">
                     <div class="site-preview">
                         <img class="site-preview-image"
-                             ng-src="chrome://thumb/{{ site.url }}"
-                             hide-on-error
+                             ng-if="site.preview"
+                             ng-src="{{ site.preview }}"
                              alt="" />
                         <div class="site-preview-fallback">
                             <img class="site-preview-icon"
@@ -45,9 +66,16 @@
 
                     <span class="app-desc">{{ site.title }}</span>
                 </a>
+                <button class="site-pin"
+                        ng-click="pinTopSite(site, $event)"
+                        ng-hide="site.pinned"
+                        title="Pin to Most Visited"
+                        type="button">
+                    <i class="fa fa-thumb-tack"></i>
+                </button>
                 <button class="site-dismiss"
-                        ng-click="hideTopSite(site, $event)"
-                        title="Remove from Most Visited"
+                        ng-click="removeTopSite(site, $event)"
+                        title="{{ site.pinned ? 'Unpin from Most Visited' : 'Remove from Most Visited' }}"
                         type="button">
                     <i class="fa fa-times"></i>
                 </button>

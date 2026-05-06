@@ -69,8 +69,22 @@ services.service('Apps', ['$rootScope', '$q', function ($rootScope, $q) {
             var deferred = $q.defer();
             chrome.topSites.get(function(sites){
                 // sites is [{url:"",title:""}]
-                deferred.resolve(sites);
+                $rootScope.$apply(function(){
+                    deferred.resolve(sites);
+                });
             });
+            return deferred.promise;
+        },
+
+        topSitePreviews: function(){
+            var deferred = $q.defer();
+
+            chrome.storage.local.get(['old_ntp.top_site_previews'], function(result) {
+                $rootScope.$apply(function(){
+                    deferred.resolve(result['old_ntp.top_site_previews'] || {});
+                });
+            });
+
             return deferred.promise;
         },
 

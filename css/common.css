@@ -148,16 +148,16 @@ div[app]:hover .app-actions {
     box-sizing: border-box;
     color: #777;
     height: 100%;
-    padding: 24px 12px 12px 12px;
+    padding: 28px 12px 12px 12px;
     text-align: center;
     width: 100%;
 }
 
 .site-preview-icon {
     display: block;
-    height: 32px;
-    margin: 0 auto 12px auto;
-    width: 32px;
+    height: 22px;
+    margin: 0 auto 10px auto;
+    width: 22px;
 }
 
 .site-preview-title,
@@ -170,14 +170,15 @@ div[app]:hover .app-actions {
 
 .site-preview-title {
     color: #555;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: bold;
-    margin-bottom: 6px;
+    line-height: 1.25;
+    margin-bottom: 5px;
 }
 
 .site-preview-url {
     color: #999;
-    font-size: 11px;
+    font-size: 10px;
 }
 
 .site-preview:hover {
@@ -186,12 +187,50 @@ div[app]:hover .app-actions {
     border-shadow-color: #666;
 }
 
+.top-sites-tools {
+    display: block;
+    height: 34px;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.top-site-add-toggle,
+.top-site-add-form button,
+.site-pin,
 .site-dismiss {
     background-color: rgba(240,240,240,0.95);
     border: 1px solid #ccc;
-    border-radius: 50%;
     color: #888;
     cursor: pointer;
+}
+
+.top-site-add-toggle,
+.top-site-add-form button {
+    border-radius: 4px;
+    height: 28px;
+    width: 28px;
+}
+
+.top-site-add-form {
+    display: inline-block;
+    margin-left: 6px;
+}
+
+.top-site-add-form input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    color: #666;
+    font-size: 12px;
+    height: 28px;
+    margin-right: 4px;
+    padding: 4px 6px;
+    width: 160px;
+}
+
+.site-pin,
+.site-dismiss {
+    border-radius: 50%;
     display: none;
     height: 24px;
     line-height: 22px;
@@ -204,12 +243,24 @@ div[app]:hover .app-actions {
     z-index: 3;
 }
 
+.site-pin {
+    right: 52px;
+}
+
+.site-dismiss {
+    right: 24px;
+}
+
+.top-site-add-toggle:hover,
+.top-site-add-form button:hover,
+.site-pin:hover,
 .site-dismiss:hover {
     background-color: #fff;
     border-color: #999;
     color: #555;
 }
 
+.top-site:hover .site-pin,
 .top-site:hover .site-dismiss {
     display: block;
 }
