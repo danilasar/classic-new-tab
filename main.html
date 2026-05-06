@@ -83,6 +83,12 @@
                        placeholder="{{ msg('siteUrlPlaceholder') }}"
                        type="text" />
             </label>
+            <label ng-if="bookmarkModal.folderOptions.length">
+                {{ msg('bookmarkFolderLabel') }}
+                <select ng-model="bookmarkModal.parentId"
+                        ng-options="folder.id as folder.title for folder in bookmarkModal.folderOptions">
+                </select>
+            </label>
             <button class="top-site-modal-submit" type="submit">
                 {{ bookmarkModal.mode === 'edit' ? msg('btnSave') : msg('btnAdd') }}
             </button>

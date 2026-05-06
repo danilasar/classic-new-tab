@@ -41,8 +41,13 @@ controllers.controller('MainController',
     $scope.bookmarkPages = [];
     $scope.bookmarkPath = [];
     $scope.bookmarkRootFolders = [];
+    $scope.bookmarkFolders = [];
     $scope.bookmarkRootId = '';
     $scope.bookmarkDefaultRootId = '';
+    $scope.draggedBookmarkId = '';
+    $scope.draggedBookmarkIndex = null;
+    $scope.dragOverBookmarkIndex = null;
+    $scope.suppressBookmarkClick = false;
     $scope.bookmarkModal = {
         open: false
     };
@@ -380,11 +385,6 @@ controllers.controller('MainController',
         return path;
     }
 
-    function currentBookmarkRoot() {
-        return ($scope.bookmarkPath || [])[0] ||
-            ($scope.bookmarkRootFolders || [])[0] || null;
-    }
-
     function isBookmarkRootOverview() {
         return $scope.bookmarkFolderId === '/';
     }
@@ -449,6 +449,62 @@ controllers.controller('MainController',
             start, start + $scope.bookmarkPageSize);
     }
 
+    function bookmarkAbsoluteIndex(localIndex) {
+        return ($scope.bookmarkPageIndex * $scope.bookmarkPageSize) + localIndex;
+    }
+
+    function bookmarkHasDescendant(folder, candidateFolderId) {
+        var foldersById = {};
+        var parentId;
+
+        ($scope.bookmarkFolders || []).forEach(function(item) {
+            foldersById[item.id] = item;
+        });
+
+        parentId = (foldersById[candidateFolderId] || {}).parentId;
+        while(parentId) {
+            if(parentId === folder.id) {
+                return true;
+            }
+
+            parentId = (foldersById[parentId] || {}).parentId;
+        }
+
+        return false;
+    }
+
+    function bookmarkFolderOptions(bookmark, includeBrowserRoot) {
+        var options = [];
+
+        if(includeBrowserRoot && $scope.bookmarkRootId) {
+            options.push({
+                id: $scope.bookmarkRootId,
+                title: $scope.msg('bookmarksRootFallback')
+            });
+        }
+
+        return options.concat(($scope.bookmarkFolders || []).filter(function(folder) {
+            if(bookmark && !bookmark.url) {
+                return folder.id !== bookmark.id &&
+                    !bookmarkHasDescendant(bookmark, folder.id);
+            }
+
+            return true;
+        }).map(function(folder) {
+            var prefix = '';
+            var i;
+
+            for(i = 0; i < folder.level; i++) {
+                prefix += '  ';
+            }
+
+            return {
+                id: folder.id,
+                title: prefix + (folder.title || $scope.msg('bookmarksRootFallback'))
+            };
+        }));
+    }
+
     function loadBookmarks(folderId) {
         return Apps.getBookmarksFolder(folderId || '')
             .then(function (result) {
@@ -468,6 +524,7 @@ controllers.controller('MainController',
                     $scope.bookmarkFolderId = result.folder ? result.folder.id : '';
                     $scope.bookmarkRootId = result.rootId || '';
                     $scope.bookmarkRootFolders = result.rootFolders || [];
+                    $scope.bookmarkFolders = result.folders || [];
                     $scope.bookmarkDefaultRootId = result.defaultRootId || '';
                     $scope.bookmarkPath = normalizeBookmarkPath(result.path);
                     updateBookmarkPage(0);
@@ -481,6 +538,7 @@ controllers.controller('MainController',
                 $scope.bookmarkPages = [];
                 $scope.bookmarkPath = [];
                 $scope.bookmarkRootFolders = [];
+                $scope.bookmarkFolders = [];
                 $scope.bookmarkRootId = '';
                 $scope.bookmarkDefaultRootId = '';
             });
@@ -533,11 +591,22 @@ controllers.controller('MainController',
             event.stopPropagation();
         }
 
+        if($scope.suppressBookmarkClick) {
+            return;
+        }
+
         if(!bookmark || bookmark.url) {
             return;
         }
 
         loadBookmarks(bookmark.id);
+    };
+
+    $scope.openBookmark = function(event) {
+        if($scope.suppressBookmarkClick && event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
     };
 
     $scope.openBookmarkPath = function(pathItem, event) {
@@ -552,15 +621,6 @@ controllers.controller('MainController',
         }
 
         loadBookmarks(pathItem.id);
-    };
-
-    $scope.showDefaultBookmarkRoot = function(event) {
-        if(event) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-
-        loadBookmarks($scope.bookmarkDefaultRootId || '');
     };
 
     $scope.showBookmarkParent = function(event) {
@@ -595,7 +655,9 @@ controllers.controller('MainController',
             mode: 'add',
             type: 'bookmark',
             title: '',
-            url: ''
+            url: '',
+            parentId: $scope.bookmarkFolderId,
+            folderOptions: bookmarkFolderOptions()
         };
     };
 
@@ -610,7 +672,11 @@ controllers.controller('MainController',
             mode: 'add',
             type: 'folder',
             root: isBookmarkRootOverview(),
-            title: ''
+            title: '',
+            parentId: isBookmarkRootOverview() ?
+                $scope.bookmarkRootId : $scope.bookmarkFolderId,
+            folderOptions: isBookmarkRootOverview() ?
+                [] : bookmarkFolderOptions()
         };
     };
 
@@ -630,7 +696,11 @@ controllers.controller('MainController',
             type: bookmark.url ? 'bookmark' : 'folder',
             id: bookmark.id,
             title: bookmark.title || '',
-            url: bookmark.url || ''
+            url: bookmark.url || '',
+            parentId: bookmark.parentId || $scope.bookmarkFolderId,
+            originalParentId: bookmark.parentId || $scope.bookmarkFolderId,
+            folderOptions: bookmarkFolderOptions(
+                bookmark, bookmark.parentId === $scope.bookmarkRootId)
         };
     };
 
@@ -662,8 +732,7 @@ controllers.controller('MainController',
                     url: url
                 }) :
                 Apps.createBookmark({
-                    parentId: isBookmarkRootOverview() ?
-                        $scope.bookmarkRootId : $scope.bookmarkFolderId,
+                    parentId: modal.parentId,
                     title: title || url,
                     url: url
                 });
@@ -677,18 +746,170 @@ controllers.controller('MainController',
                     title: title
                 }) :
                 Apps.createBookmark({
-                    parentId: modal.root ? $scope.bookmarkRootId :
-                        $scope.bookmarkFolderId,
+                    parentId: modal.parentId,
                     title: title
                 });
         }
 
         action.then(function(result) {
+            var targetFolderId = modal.mode === 'edit' ?
+                modal.parentId : $scope.bookmarkFolderId;
+
+            if(modal.mode === 'edit' && modal.parentId &&
+               modal.parentId !== modal.originalParentId) {
+                return Apps.moveBookmark(modal.id, {
+                    parentId: modal.parentId
+                }).then(function() {
+                    $scope.closeBookmarkModal();
+                    loadBookmarks($scope.bookmarkFolderId);
+                }, function() {
+                    window.alert($scope.msg('bookmarkOperationFailed'));
+                });
+            }
+
             $scope.closeBookmarkModal();
-            loadBookmarks(modal.root ? '/' : $scope.bookmarkFolderId);
+            loadBookmarks(modal.root ? '/' : targetFolderId);
         }, function() {
             window.alert($scope.msg('bookmarkOperationFailed'));
         });
+    };
+
+    $scope.startBookmarkDrag = function(bookmark, localIndex, event) {
+        var dataTransfer;
+
+        if(isBookmarkRootOverview() || !bookmark || !bookmark.id) {
+            return;
+        }
+
+        $scope.draggedBookmarkId = bookmark.id;
+        $scope.draggedBookmarkIndex = bookmarkAbsoluteIndex(localIndex);
+        $scope.dragOverBookmarkIndex = $scope.draggedBookmarkIndex;
+        $scope.suppressBookmarkClick = false;
+
+        dataTransfer = eventDataTransfer(event);
+        if(dataTransfer) {
+            dataTransfer.effectAllowed = 'move';
+            dataTransfer.setData('text/plain', bookmark.id);
+        }
+    };
+
+    $scope.dragOverBookmark = function(localIndex, event) {
+        var dataTransfer;
+
+        if(!$scope.draggedBookmarkId) {
+            return;
+        }
+
+        if(event) {
+            event.preventDefault();
+            dataTransfer = eventDataTransfer(event);
+            if(dataTransfer) {
+                dataTransfer.dropEffect = 'move';
+            }
+        }
+
+        $scope.dragOverBookmarkIndex = bookmarkAbsoluteIndex(localIndex);
+    };
+
+    $scope.leaveBookmarkDrag = function(localIndex, event) {
+        if($scope.dragOverBookmarkIndex === bookmarkAbsoluteIndex(localIndex)) {
+            $scope.dragOverBookmarkIndex = null;
+        }
+    };
+
+    $scope.dropBookmark = function(localIndex, event) {
+        var targetIndex = bookmarkAbsoluteIndex(localIndex);
+
+        if(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        if(!$scope.draggedBookmarkId ||
+           $scope.draggedBookmarkIndex === targetIndex ||
+           isBookmarkRootOverview()) {
+            $scope.endBookmarkDrag();
+            return;
+        }
+
+        Apps.moveBookmark($scope.draggedBookmarkId, {
+            parentId: $scope.bookmarkFolderId,
+            index: targetIndex
+        }).then(function() {
+            loadBookmarks($scope.bookmarkFolderId)
+                .then(function() {
+                    updateBookmarkPage(Math.floor(
+                        targetIndex / $scope.bookmarkPageSize));
+                });
+        }, function() {
+            window.alert($scope.msg('bookmarkOperationFailed'));
+        });
+
+        $scope.endBookmarkDrag();
+    };
+
+    $scope.endBookmarkDrag = function() {
+        $scope.draggedBookmarkId = '';
+        $scope.draggedBookmarkIndex = null;
+        $scope.dragOverBookmarkIndex = null;
+        $scope.suppressBookmarkClick = true;
+
+        window.setTimeout(function() {
+            $scope.suppressBookmarkClick = false;
+        }, 250);
+    };
+
+    $scope.moveDraggedBookmarkToPage = function(page, event) {
+        var targetIndex;
+
+        if(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        if(!$scope.draggedBookmarkId || !page ||
+           page.separator === true || page.index < 0 ||
+           page.index >= $scope.bookmarkPageCount ||
+           isBookmarkRootOverview()) {
+            return;
+        }
+
+        targetIndex = Math.min(
+            page.index * $scope.bookmarkPageSize,
+            Math.max(0, $scope.allBookmarks.length - 1));
+
+        Apps.moveBookmark($scope.draggedBookmarkId, {
+            parentId: $scope.bookmarkFolderId,
+            index: targetIndex
+        }).then(function() {
+            loadBookmarks($scope.bookmarkFolderId)
+                .then(function() {
+                    updateBookmarkPage(page.index);
+                });
+        }, function() {
+            window.alert($scope.msg('bookmarkOperationFailed'));
+        });
+
+        $scope.endBookmarkDrag();
+    };
+
+    $scope.dragOverBookmarkPage = function(page, event) {
+        var dataTransfer;
+
+        if(!$scope.draggedBookmarkId || !page ||
+           page.separator === true || page.index < 0 ||
+           page.index >= $scope.bookmarkPageCount ||
+           isBookmarkRootOverview()) {
+            return;
+        }
+
+        if(event) {
+            event.preventDefault();
+            dataTransfer = eventDataTransfer(event);
+            if(dataTransfer) {
+                dataTransfer.dropEffect = 'move';
+            }
+        }
     };
 
     $scope.removeBookmark = function(bookmark, event) {

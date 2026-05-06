@@ -169,18 +169,39 @@ services.service('Apps', ['$rootScope', '$q', function ($rootScope, $q) {
                 var root = results && results[0];
                 var rootFolders = root && root.children ? root.children : [];
                 var defaultFolder = rootFolders[0];
+                var allFolders = [];
                 var current;
+
+                function collectFolders(node, level) {
+                    (node && node.children || []).forEach(function(item) {
+                        if(item.url) {
+                            return;
+                        }
+
+                        allFolders.push({
+                            id: item.id,
+                            parentId: item.parentId,
+                            title: item.title,
+                            level: level,
+                            unmodifiable: item.unmodifiable
+                        });
+                        collectFolders(item, level + 1);
+                    });
+                }
 
                 if(!defaultFolder) {
                     return {
                         folder: null,
                         rootId: root ? root.id : '',
                         rootFolders: [],
+                        folders: [],
                         defaultRootId: '',
                         path: [],
                         items: []
                     };
                 }
+
+                collectFolders(root, 0);
 
                 if(folderId === '/') {
                     return {
@@ -190,6 +211,7 @@ services.service('Apps', ['$rootScope', '$q', function ($rootScope, $q) {
                         },
                         rootId: root.id,
                         rootFolders: rootFolders.map(folderInfo),
+                        folders: allFolders,
                         defaultRootId: defaultFolder.id,
                         path: [folderInfo(root)],
                         items: limit ?
@@ -219,6 +241,7 @@ services.service('Apps', ['$rootScope', '$q', function ($rootScope, $q) {
                     folder: folderInfo(current.node),
                     rootId: root.id,
                     rootFolders: rootFolders.map(folderInfo),
+                    folders: allFolders,
                     defaultRootId: defaultFolder.id,
                     path: current.path,
                     items: limit ?
@@ -230,6 +253,21 @@ services.service('Apps', ['$rootScope', '$q', function ($rootScope, $q) {
             chrome.bookmarks.getTree(function(results){
                 $rootScope.$apply(function(){
                     deferred.resolve(folderResult(results));
+                });
+            });
+            return deferred.promise;
+        },
+
+        moveBookmark: function(id, destination) {
+            var deferred = $q.defer();
+
+            chrome.bookmarks.move(id, destination, function(result) {
+                $rootScope.$apply(function(){
+                    if(chrome.runtime.lastError) {
+                        deferred.reject(chrome.runtime.lastError);
+                    } else {
+                        deferred.resolve(result);
+                    }
                 });
             });
             return deferred.promise;

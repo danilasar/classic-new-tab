@@ -469,5 +469,9 @@
   "bookmarksDefaultRoot": {
     "message": "Bookmarks bar",
     "description": "Tooltip for returning to the default bookmarks bar folder"
+  },
+  "bookmarkFolderLabel": {
+    "message": "Folder",
+    "description": "Label for choosing a bookmark parent folder"
   }
 }

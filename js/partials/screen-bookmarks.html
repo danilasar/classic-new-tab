@@ -16,13 +16,6 @@
             </a>
         </div>
         <div class="bookmark-toolbar-spacer"></div>
-        <button class="bookmark-nav-button"
-                ng-click="showDefaultBookmarkRoot($event)"
-                ng-disabled="!bookmarkDefaultRootId || (!isBookmarkRootOverview() && bookmarkPath.length < 2)"
-                title="{{ msg('bookmarksDefaultRoot') }}"
-                type="button">
-            <i class="fa fa-times"></i>
-        </button>
         <button class="bookmark-toolbar-button"
                 ng-click="openAddBookmark($event)"
                 ng-hide="isBookmarkRootOverview()"
@@ -43,6 +36,8 @@
     <div class="bookmarks-page-shell">
         <button class="bookmark-page-side bookmark-page-side-left"
                 ng-click="showPreviousBookmarkPage($event)"
+                ont-dragover="dragOverBookmarkPage({index: bookmarkPageIndex - 1}, $event)"
+                ont-drop="moveDraggedBookmarkToPage({index: bookmarkPageIndex - 1}, $event)"
                 ng-disabled="!canShowPreviousBookmarkPage()"
                 ng-show="bookmarkPageCount > 1"
                 title="{{ msg('bookmarksPreviousPage') }}"
@@ -52,12 +47,21 @@
 
         <div class="bookmarks-grid">
             <div ng-repeat="bookmark in bookmarks track by bookmark.id"
-                 class="app-icon bookmark-item">
+                 class="app-icon bookmark-item"
+                 ng-class="{'bookmark-dragging': draggedBookmarkId === bookmark.id,
+                            'bookmark-drag-over': dragOverBookmarkIndex === (bookmarkPageIndex * bookmarkPageSize) + $index}"
+                 draggable="{{ !isBookmarkRootOverview() }}"
+                 ont-dragstart="startBookmarkDrag(bookmark, $index, $event)"
+                 ont-dragover="dragOverBookmark($index, $event)"
+                 ont-dragleave="leaveBookmarkDrag($index, $event)"
+                 ont-drop="dropBookmark($index, $event)"
+                 ont-dragend="endBookmarkDrag()">
                 <a ng-if="bookmark.url"
                    ng-href="{{ bookmark.url }}"
                    ng-title="{{ bookmark.title || bookmark.url }}"
                    target="_self"
-                   class="app-icon-container">
+                   class="app-icon-container"
+                   ng-click="openBookmark($event)">
                     <div class="site-preview">
                         <img class="site-preview-image"
                              ng-if="bookmark.preview"
@@ -138,6 +142,8 @@
 
         <button class="bookmark-page-side bookmark-page-side-right"
                 ng-click="showNextBookmarkPage($event)"
+                ont-dragover="dragOverBookmarkPage({index: bookmarkPageIndex + 1}, $event)"
+                ont-drop="moveDraggedBookmarkToPage({index: bookmarkPageIndex + 1}, $event)"
                 ng-disabled="!canShowNextBookmarkPage()"
                 ng-show="bookmarkPageCount > 1"
                 title="{{ msg('bookmarksNextPage') }}"
@@ -149,6 +155,8 @@
     <div class="bookmark-pagination" ng-show="bookmarkPageCount > 1">
         <button ng-repeat="page in bookmarkPages track by $index"
                 ng-click="setBookmarkPage(page, $event)"
+                ont-dragover="dragOverBookmarkPage(page, $event)"
+                ont-drop="moveDraggedBookmarkToPage(page, $event)"
                 ng-class="{'active': page.index === bookmarkPageIndex,
                            'bookmark-page-separator': page.separator}"
                 ng-disabled="page.separator"

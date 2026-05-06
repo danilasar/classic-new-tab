@@ -469,5 +469,9 @@
   "bookmarksDefaultRoot": {
     "message": "Панель закладок",
     "description": "Tooltip for returning to the default bookmarks bar folder"
+  },
+  "bookmarkFolderLabel": {
+    "message": "Папка",
+    "description": "Label for choosing a bookmark parent folder"
   }
 }

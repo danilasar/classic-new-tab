@@ -282,6 +282,24 @@ div[app]:hover .app-actions {
     opacity: 0.38;
 }
 
+.bookmark-dragging {
+    opacity: 0.45;
+}
+
+.bookmark-item[draggable="true"] {
+    cursor: move;
+}
+
+.bookmark-drag-over .site-preview {
+    border-color: #777;
+    box-shadow: 0 0 0 2px rgba(80,80,80,0.18),
+                inset 0 0 1em rgba(0,0,0,0.12);
+}
+
+.bookmark-dragging .site-preview {
+    border-style: dashed;
+}
+
 .bookmark-pagination {
     clear: both;
     display: flex;
@@ -552,7 +570,8 @@ div[app]:hover .app-actions {
     margin-bottom: 12px;
 }
 
-.top-site-modal input {
+.top-site-modal input,
+.top-site-modal select {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
