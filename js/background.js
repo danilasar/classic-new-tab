@@ -7,7 +7,9 @@ var PINNED_TOP_SITES_KEY = 'old_ntp.pinned_top_sites';
 var PREVIEW_WIDTH = 300;
 var PREVIEW_HEIGHT = 200;
 var CAPTURE_DELAY = 1500;
+var MAX_LOADING_RETRIES = 12;
 var captureTimers = {};
+var loadingRetries = {};
 
 function canonicalUrl(url) {
     if(!/^https?:\/\//.test(url || '')) {
@@ -23,6 +25,10 @@ function canonicalUrl(url) {
 
 function shouldCaptureTab(tab) {
     return tab && tab.active && tab.status === 'complete' && canonicalUrl(tab.url);
+}
+
+function shouldWaitForTab(tab) {
+    return tab && tab.active && tab.status === 'loading' && canonicalUrl(tab.url);
 }
 
 function getPreviewKey(url) {
@@ -178,13 +184,27 @@ function scheduleCapture(tabId) {
                 return;
             }
 
+            if(shouldWaitForTab(tab)) {
+                loadingRetries[tabId] = (loadingRetries[tabId] || 0) + 1;
+
+                if(loadingRetries[tabId] <= MAX_LOADING_RETRIES) {
+                    scheduleCapture(tabId);
+                } else {
+                    delete loadingRetries[tabId];
+                }
+
+                return;
+            }
+
+            delete loadingRetries[tabId];
             captureTab(tab);
         });
     }, CAPTURE_DELAY);
 }
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    if(changeInfo.status === 'complete' && shouldCaptureTab(tab)) {
+    if((changeInfo.status === 'complete' && shouldCaptureTab(tab)) ||
+       (changeInfo.status === 'loading' && shouldWaitForTab(tab))) {
         scheduleCapture(tabId);
     }
 });
