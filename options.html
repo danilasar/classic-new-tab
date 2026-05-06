@@ -18,6 +18,54 @@
         <section class="settings-section">
             <div class="section-toolbar">
                 <div>
+                    <h2 data-i18n="settingsLegacyHeading"></h2>
+                    <p data-i18n="settingsLegacyDescription"></p>
+                </div>
+            </div>
+
+            <form id="legacyForm" class="legacy-form">
+                <label class="wide-field">
+                    <span data-i18n="options_url_label"></span>
+                    <input id="legacyUrl" type="text" autocomplete="off" data-i18n-placeholder="siteUrlPlaceholder">
+                </label>
+                <label class="checkbox-field">
+                    <input id="legacySync" type="checkbox">
+                    <span data-i18n="options_chkSync"></span>
+                </label>
+                <label class="checkbox-field">
+                    <input id="legacyShowWelcome" type="checkbox">
+                    <span data-i18n="options_chkShowWelcome"></span>
+                </label>
+                <div class="form-actions">
+                    <button id="legacyLoadSync" type="button" class="secondary-button" data-i18n="settingsLegacyLoadSync"></button>
+                    <button id="legacyCancel" type="button" class="secondary-button" data-i18n="btnCancel"></button>
+                    <button id="legacySave" type="submit" class="primary-button" data-i18n="btnSave"></button>
+                </div>
+            </form>
+
+            <div class="quick-links-grid">
+                <div>
+                    <h3 data-i18n="settingsCustomPages"></h3>
+                    <div id="legacyCustomPages" class="quick-links"></div>
+                </div>
+                <div>
+                    <h3 data-i18n="options_chromePages"></h3>
+                    <div id="legacyChromePages" class="quick-links"></div>
+                </div>
+                <div>
+                    <h3 data-i18n="options_aboutPages"></h3>
+                    <div id="legacyAboutPages" class="quick-links"></div>
+                </div>
+                <div>
+                    <h3 data-i18n="options_popularPages"></h3>
+                    <div id="legacyPopularPages" class="quick-links"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="settings-section">
+            <div class="section-toolbar">
+                <div>
                     <h2 data-i18n="settingsPinnedHeading"></h2>
                     <p data-i18n="settingsPinnedDescription"></p>
                 </div>
