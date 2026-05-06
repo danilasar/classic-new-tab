@@ -444,10 +444,6 @@ footer {
 }
 
 .tabs {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
     text-align: center;
     width: 100%;
 }

@@ -191,10 +191,8 @@ function renderPreviewCount() {
 
 function renderScreens() {
     var container = document.getElementById('screenToggles');
-    var error = document.getElementById('screenToggleError');
 
     clearNode(container);
-    error.hidden = true;
 
     state.enabledScreenIds = normalizeEnabledScreens(state.enabledScreenIds);
 
@@ -226,12 +224,12 @@ function renderScreens() {
         container.appendChild(row);
 
         checkbox.addEventListener('change', function() {
-            toggleScreen(screen.id, checkbox.checked, error);
+            toggleScreen(screen.id, checkbox.checked);
         });
     });
 }
 
-function toggleScreen(screenId, enabled, errorNode) {
+function toggleScreen(screenId, enabled) {
     var next = state.enabledScreenIds.filter(function(id) {
         return id !== screenId;
     });
@@ -241,11 +239,6 @@ function toggleScreen(screenId, enabled, errorNode) {
     }
 
     next = normalizeEnabledScreens(next);
-
-    if(!next.length) {
-        errorNode.hidden = false;
-        return;
-    }
 
     state.enabledScreenIds = next;
     saveEnabledScreens(function() {
