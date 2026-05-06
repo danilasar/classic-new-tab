@@ -18,6 +18,18 @@
         <section class="settings-section">
             <div class="section-toolbar">
                 <div>
+                    <h2 data-i18n="settingsScreensHeading"></h2>
+                    <p data-i18n="settingsScreensDescription"></p>
+                </div>
+            </div>
+
+            <div id="screenToggles" class="toggle-list"></div>
+            <p id="screenToggleError" class="empty-state" hidden data-i18n="settingsScreenRequired"></p>
+        </section>
+
+        <section class="settings-section">
+            <div class="section-toolbar">
+                <div>
                     <h2 data-i18n="settingsPinnedHeading"></h2>
                     <p data-i18n="settingsPinnedDescription"></p>
                 </div>
@@ -70,6 +82,7 @@
 
     <div id="status" class="status" role="status" aria-live="polite"></div>
 
+    <script src="js/screens.js"></script>
     <script src="js/options.js"></script>
 </body>
 </html>

@@ -444,6 +444,10 @@ footer {
 }
 
 .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
     text-align: center;
     width: 100%;
 }
@@ -455,10 +459,11 @@ footer {
     font-size: 0.9em;
     font-weight: bold;
     height: 50px;
+    min-width: 100px;
     padding-left: 10px;
     padding-top: 5px;
     text-align: left;
-    width: 100px;
+    width: auto;
 }
 
 .tab:hover, .tab.active {

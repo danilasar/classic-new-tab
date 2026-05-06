@@ -4,11 +4,34 @@
 var HIDDEN_TOP_SITES_KEY = 'old_ntp.hidden_top_sites';
 var PINNED_TOP_SITES_KEY = 'old_ntp.pinned_top_sites';
 var TOP_SITE_PREVIEWS_KEY = 'old_ntp.top_site_previews';
+var ENABLED_SCREENS_KEY = 'old_ntp.enabled_screens';
+
+var screenDefs = window.newTabScreens || [
+    {
+        id: 'apps',
+        titleKey: 'appsTab',
+        descriptionKey: 'settingsScreenAppsDescription',
+        defaultEnabled: true
+    },
+    {
+        id: 'top',
+        titleKey: 'mostVisited',
+        descriptionKey: 'settingsScreenTopDescription',
+        defaultEnabled: true
+    }
+];
+var screenLookup = {};
+var i;
+
+for(i = 0; i < screenDefs.length; i++) {
+    screenLookup[screenDefs[i].id] = screenDefs[i];
+}
 
 var state = {
     hiddenTopSites: [],
     pinnedTopSites: [],
     previews: {},
+    enabledScreenIds: [],
     editingIndex: -1
 };
 
@@ -107,12 +130,128 @@ function saveHiddenTopSites(callback) {
     storageSet('sync', values, callback);
 }
 
+function defaultEnabledScreens() {
+    var ids;
+
+    if(window.newTabDefaultEnabledScreenIds) {
+        ids = window.newTabDefaultEnabledScreenIds();
+        if(ids && ids.length) {
+            return ids;
+        }
+    }
+
+    ids = screenDefs.filter(function(screen) {
+        return screen.defaultEnabled !== false;
+    }).map(function(screen) {
+        return screen.id;
+    });
+
+    return ids.length ? ids : (screenDefs[0] ? [screenDefs[0].id] : []);
+}
+
+function normalizeEnabledScreens(ids) {
+    var map = {};
+    var enabled;
+
+    enabled = (ids || []).filter(function(id) {
+        return !!screenLookup[id];
+    });
+
+    if(!enabled.length) {
+        enabled = defaultEnabledScreens();
+    }
+
+    enabled.forEach(function(id) {
+        map[id] = true;
+    });
+
+    enabled = screenDefs.filter(function(screen) {
+        return map[screen.id];
+    }).map(function(screen) {
+        return screen.id;
+    });
+
+    return enabled.length ? enabled : defaultEnabledScreens();
+}
+
+function saveEnabledScreens(callback) {
+    var values = {};
+
+    values[ENABLED_SCREENS_KEY] = state.enabledScreenIds.slice();
+    storageSet('sync', values, callback);
+}
+
 function renderPreviewCount() {
     var count = Object.keys(state.previews || {}).length;
 
     text(document.getElementById('previewCount'),
          chrome.i18n.getMessage('settingsPreviewCount', [String(count)]) ||
          String(count));
+}
+
+function renderScreens() {
+    var container = document.getElementById('screenToggles');
+    var error = document.getElementById('screenToggleError');
+
+    clearNode(container);
+    error.hidden = true;
+
+    state.enabledScreenIds = normalizeEnabledScreens(state.enabledScreenIds);
+
+    screenDefs.forEach(function(screen) {
+        var row = document.createElement('label');
+        var checkbox = document.createElement('input');
+        var textBlock = document.createElement('span');
+        var title = document.createElement('strong');
+        var desc = document.createElement('span');
+
+        row.className = 'toggle-row';
+        checkbox.type = 'checkbox';
+        checkbox.checked = state.enabledScreenIds.indexOf(screen.id) !== -1;
+        checkbox.setAttribute('data-screen-id', screen.id);
+
+        title.className = 'toggle-title';
+        desc.className = 'toggle-desc';
+
+        text(title, msg(screen.titleKey));
+        text(desc, msg(screen.descriptionKey || ''));
+
+        textBlock.appendChild(title);
+        if(desc.textContent) {
+            textBlock.appendChild(desc);
+        }
+
+        row.appendChild(checkbox);
+        row.appendChild(textBlock);
+        container.appendChild(row);
+
+        checkbox.addEventListener('change', function() {
+            toggleScreen(screen.id, checkbox.checked, error);
+        });
+    });
+}
+
+function toggleScreen(screenId, enabled, errorNode) {
+    var next = state.enabledScreenIds.filter(function(id) {
+        return id !== screenId;
+    });
+
+    if(enabled) {
+        next.push(screenId);
+    }
+
+    next = normalizeEnabledScreens(next);
+
+    if(!next.length) {
+        errorNode.hidden = false;
+        return;
+    }
+
+    state.enabledScreenIds = next;
+    saveEnabledScreens(function() {
+        renderScreens();
+        showStatus(msg('settingsSaved'));
+    });
 }
 
 function createButton(label, className, callback) {
@@ -201,6 +340,7 @@ function renderHiddenTopSites() {
 }
 
 function render() {
+    renderScreens();
     renderPinnedTopSites();
     renderHiddenTopSites();
     renderPreviewCount();
@@ -326,10 +466,14 @@ function loadState(callback) {
     storageGet('sync', [HIDDEN_TOP_SITES_KEY, PINNED_TOP_SITES_KEY],
         function(syncItems) {
             storageGet('local', [TOP_SITE_PREVIEWS_KEY], function(localItems) {
-                state.hiddenTopSites = syncItems[HIDDEN_TOP_SITES_KEY] || [];
-                state.pinnedTopSites = syncItems[PINNED_TOP_SITES_KEY] || [];
-                state.previews = localItems[TOP_SITE_PREVIEWS_KEY] || {};
-                callback();
+                storageGet('sync', [ENABLED_SCREENS_KEY], function(screenItems) {
+                    state.hiddenTopSites = syncItems[HIDDEN_TOP_SITES_KEY] || [];
+                    state.pinnedTopSites = syncItems[PINNED_TOP_SITES_KEY] || [];
+                    state.previews = localItems[TOP_SITE_PREVIEWS_KEY] || {};
+                    state.enabledScreenIds = screenItems[ENABLED_SCREENS_KEY] ||
+                        defaultEnabledScreens();
+                    callback();
+                });
             });
         });
 }

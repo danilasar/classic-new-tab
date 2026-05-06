@@ -269,5 +269,25 @@
   "moveTopSite": {
     "message": "Перетащить для изменения порядка",
     "description": "Tooltip for dragging a most visited site tile"
+  },
+  "settingsScreensHeading": {
+    "message": "Экраны",
+    "description": "Screen toggles heading"
+  },
+  "settingsScreensDescription": {
+    "message": "Выберите, какие вкладки будут видны на новой странице.",
+    "description": "Screen toggles description"
+  },
+  "settingsScreenAppsDescription": {
+    "message": "Приложения Chrome и быстрые ссылки из закладок.",
+    "description": "Apps screen description"
+  },
+  "settingsScreenTopDescription": {
+    "message": "Плитки часто посещаемых сайтов Chrome и закрепленные плитки.",
+    "description": "Top sites screen description"
+  },
+  "settingsScreenRequired": {
+    "message": "Нужно оставить включенной хотя бы одну вкладку.",
+    "description": "Validation message for screen toggles"
   }
 }

@@ -277,5 +277,25 @@
   "moveTopSite": {
     "message": "Drag to reorder",
     "description": "Tooltip for dragging a most visited site tile"
+  },
+  "settingsScreensHeading": {
+    "message": "Screens",
+    "description": "Screen toggles heading"
+  },
+  "settingsScreensDescription": {
+    "message": "Choose which tabs are visible in the new tab page.",
+    "description": "Screen toggles description"
+  },
+  "settingsScreenAppsDescription": {
+    "message": "Chrome apps and bookmark shortcuts.",
+    "description": "Apps screen description"
+  },
+  "settingsScreenTopDescription": {
+    "message": "Chrome most visited tiles and custom pinned tiles.",
+    "description": "Top sites screen description"
+  },
+  "settingsScreenRequired": {
+    "message": "At least one screen must stay enabled.",
+    "description": "Validation message for screen toggles"
   }
 }

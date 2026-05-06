@@ -4,14 +4,26 @@ var controllers = angular.module('newTab.controllers', ['newTab.services']);
 controllers.controller('MainController',
                        ['$scope', 'Apps',
                         function ($scope, Apps) {
+    var enabled_screens_key = 'old_ntp.enabled_screens';
+    var active_screen_key = 'old_ntp.active_screen';
     var show_top_key = 'old_ntp.show_top';
     var hidden_top_key = 'old_ntp.hidden_top_sites';
     var pinned_top_key = 'old_ntp.pinned_top_sites';
     var top_site_order_key = 'old_ntp.top_site_order';
 
-    $scope.tabs = {
-        show_top: false
-    };
+    var screenDefs = window.newTabScreens || [];
+    var screenLookup = {};
+    var defaultEnabledScreenIds = (window.newTabDefaultEnabledScreenIds &&
+        window.newTabDefaultEnabledScreenIds()) || [];
+    var i;
+
+    for(i = 0; i < screenDefs.length; i++) {
+        screenLookup[screenDefs[i].id] = screenDefs[i];
+    }
+
+    $scope.screens = [];
+    $scope.enabledScreenIds = [];
+    $scope.activeScreenId = '';
     $scope.hiddenTopSites = [];
     $scope.pinnedTopSites = [];
     $scope.topSiteOrder = [];
@@ -28,15 +40,106 @@ controllers.controller('MainController',
 
     document.title = $scope.msg('newTabTitle');
 
+    function getEnabledScreens() {
+        return $scope.enabledScreenIds.map(function(id) {
+            return screenLookup[id];
+        }).filter(function(item) {
+            return !!item;
+        });
+    }
+
+    function refreshScreens() {
+        var enabled = {};
+
+        $scope.enabledScreenIds = ($scope.enabledScreenIds || [])
+            .filter(function(id) {
+                return !!screenLookup[id];
+            });
+
+        if(!$scope.enabledScreenIds.length) {
+            $scope.enabledScreenIds = defaultEnabledScreenIds.slice();
+        }
+
+        for(i = 0; i < $scope.enabledScreenIds.length; i++) {
+            enabled[$scope.enabledScreenIds[i]] = true;
+        }
+
+        $scope.screens = screenDefs.filter(function(def) {
+            return enabled[def.id];
+        });
+
+        if(!$scope.activeScreenId || !enabled[$scope.activeScreenId]) {
+            $scope.activeScreenId = $scope.screens.length ?
+                $scope.screens[0].id : '';
+        }
+    }
+
+    function saveScreenPreferences() {
+        var obj = {};
+
+        obj[enabled_screens_key] = $scope.enabledScreenIds.slice();
+        obj[active_screen_key] = $scope.activeScreenId;
+        obj[show_top_key] = $scope.activeScreenId === 'top';
+
+        Apps.saveSetting(obj);
+    }
+
+    function setActiveScreenInternal(screenId, persist) {
+        if(!screenLookup[screenId]) {
+            return;
+        }
+
+        if($scope.enabledScreenIds.indexOf(screenId) === -1) {
+            return;
+        }
+
+        $scope.activeScreenId = screenId;
+        if(persist !== false) {
+            saveScreenPreferences();
+        }
+    }
+
+    function cycleScreen(direction) {
+        var enabled = getEnabledScreens();
+        var index = -1;
+
+        if(enabled.length < 2) {
+            return;
+        }
+
+        for(i = 0; i < enabled.length; i++) {
+            if(enabled[i].id === $scope.activeScreenId) {
+                index = i;
+                break;
+            }
+        }
+
+        if(index === -1) {
+            setActiveScreenInternal(enabled[0].id);
+            return;
+        }
+
+        index = (index + direction + enabled.length) % enabled.length;
+        setActiveScreenInternal(enabled[index].id);
+    }
+
+    $scope.setActiveScreen = function(screenId) {
+        setActiveScreenInternal(screenId);
+    };
+
+    $scope.showPreviousScreen = function() {
+        cycleScreen(-1);
+    };
+
+    $scope.showNextScreen = function() {
+        cycleScreen(1);
+    };
+
     $(window).on("keydown", function (e) {
         if (e.which == 37) { // Left arrow key
-            if (!$scope.tabs.show_top) {
-                $scope.tabs.show_top = true;
-            }
+            cycleScreen(-1);
         } else if (e.which == 39) { // Right arrow key
-            if ($scope.tabs.show_top) {
-                $scope.tabs.show_top = false;
-            }
+            cycleScreen(1);
         } else {
             return;
         }
@@ -48,29 +151,13 @@ controllers.controller('MainController',
         var delta = e.originalEvent.wheelDelta;
 
         if (delta > 0) { // Scrolling up/left
-            if (!$scope.tabs.show_top) {
-                $scope.tabs.show_top = true;
-            }
+            cycleScreen(-1);
         } else { // Scrolling down/right
-            if ($scope.tabs.show_top) {
-                $scope.tabs.show_top = false;
-            }
+            cycleScreen(1);
         }
 
         $scope.$apply();
     });
-
-    function savePreferences() {
-        var obj = {};
-
-        obj[show_top_key] = $scope.tabs.show_top;
-
-        Apps.saveSetting(obj);
-
-        // reload bookmarks and topSites
-        loadBookmarks();
-        loadTopSites();
-    };
 
     function loadBookmarks() {
         return Apps.getBookmarksBar(12)
@@ -473,20 +560,34 @@ controllers.controller('MainController',
         loadTopSites();
     };
 
-    $scope.$watch("tabs.show_top", function () {
-        savePreferences();
-    });
-
     // initial page setup
-    var querySettings = [show_top_key, hidden_top_key, pinned_top_key,
-                         top_site_order_key];
+    var querySettings = [enabled_screens_key, active_screen_key, show_top_key,
+                         hidden_top_key, pinned_top_key, top_site_order_key];
 
     Apps.getSetting(querySettings)
         .then(function(settings) {
-            $scope.tabs.show_top = settings[show_top_key];
+            var enabled = settings[enabled_screens_key];
+
+            if(!enabled || !enabled.length) {
+                enabled = defaultEnabledScreenIds.slice();
+            }
+
+            $scope.enabledScreenIds = enabled.filter(function(id) {
+                return !!screenLookup[id];
+            });
+
             $scope.hiddenTopSites = settings[hidden_top_key] || [];
             $scope.pinnedTopSites = settings[pinned_top_key] || [];
             $scope.topSiteOrder = settings[top_site_order_key] || [];
+
+            if(settings[active_screen_key] && screenLookup[settings[active_screen_key]]) {
+                $scope.activeScreenId = settings[active_screen_key];
+            } else if(settings[show_top_key] !== undefined) {
+                $scope.activeScreenId = settings[show_top_key] ? 'top' : 'apps';
+            }
+
+            refreshScreens();
+            saveScreenPreferences();
         })
         .then(function(){
             loadApps()
