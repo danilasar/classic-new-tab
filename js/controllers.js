@@ -17,6 +17,12 @@ controllers.controller('MainController',
         open: false
     };
 
+    $scope.msg = function(key) {
+        return chrome.i18n.getMessage(key) || key;
+    };
+
+    document.title = $scope.msg('newTabTitle');
+
     $(window).on("keydown", function (e) {
         if (e.which == 37) { // Left arrow key
             if (!$scope.tabs.show_top) {

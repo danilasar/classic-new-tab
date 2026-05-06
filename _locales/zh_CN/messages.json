@@ -118,5 +118,65 @@
   "options_donate_headingSmall": {
     "message": "表示支持！",
     "description": "The helper text for the donate section"
+  },
+  "newTabTitle": {
+    "message": "Новая вкладка",
+    "description": "New tab page title"
+  },
+  "addSite": {
+    "message": "Добавить сайт",
+    "description": "Text for adding a site tile"
+  },
+  "editSite": {
+    "message": "Редактировать сайт",
+    "description": "Text for editing a site tile"
+  },
+  "btnAdd": {
+    "message": "Добавить",
+    "description": "Text displayed on an add button"
+  },
+  "close": {
+    "message": "Закрыть",
+    "description": "Text for closing a modal"
+  },
+  "siteTitleLabel": {
+    "message": "Название",
+    "description": "Label for site title input"
+  },
+  "siteUrlLabel": {
+    "message": "URL",
+    "description": "Label for site URL input"
+  },
+  "siteUrlPlaceholder": {
+    "message": "https://example.com",
+    "description": "Placeholder for site URL input"
+  },
+  "pinTopSite": {
+    "message": "Закрепить в часто посещаемых",
+    "description": "Tooltip for pinning a most visited site tile"
+  },
+  "unpinTopSite": {
+    "message": "Открепить из часто посещаемых",
+    "description": "Tooltip for unpinning a most visited site tile"
+  },
+  "removeTopSite": {
+    "message": "Удалить из часто посещаемых",
+    "description": "Tooltip for removing a most visited site tile"
+  },
+  "chromeLogoAlt": {
+    "message": "Логотип Chrome",
+    "description": "Alt text for the Chrome logo"
+  },
+  "webStore": {
+    "message": "Интернет-магазин",
+    "description": "Chrome Web Store link text"
+  },
+  "mostVisited": {
+    "message": "Часто посещаемые",
+    "description": "Most visited tab label"
+  },
+  "appsTab": {
+    "message": "Приложения",
+    "description": "Apps tab label"
   }
 }

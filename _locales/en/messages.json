@@ -35,20 +35,20 @@
     "message": "$NAME$ | Options",
     "description": "Options page title displayed within the tab, i.e. html title.",
     "placeholders": {
-        "name": {
-            "content": "$1",
-            "example": "New Tab Redirect!"
-        }
+      "name": {
+        "content": "$1",
+        "example": "New Tab Redirect!"
+      }
     }
   },
   "options_heading": {
     "message": "$NAME$ Options",
     "description": "Options page header displayed next to icon at the top of the page.",
     "placeholders": {
-        "name": {
-            "content": "$1",
-            "example": "New Tab Redirect!"
-        }
+      "name": {
+        "content": "$1",
+        "example": "New Tab Redirect!"
+      }
     }
   },
   "options_subheading": {
@@ -99,7 +99,9 @@
     "message": "If you have any questions, be sure to check out the $WIKI$ for answers and tips",
     "description": "Footer message linking to the wiki",
     "placeholders": {
-        "wiki": { "content": "$1" }
+      "wiki": {
+        "content": "$1"
+      }
     }
   },
   "options_createdBy": {
@@ -112,7 +114,7 @@
   },
   "options_githubTitle": {
     "message": "Find me on GitHub!",
-    "description" : "Title displayed on github link"
+    "description": "Title displayed on github link"
   },
   "options_chkSync": {
     "message": "Sync Options",
@@ -121,5 +123,65 @@
   "options_chkShowWelcome": {
     "message": "Show Welcome on upgrade",
     "description": "Labels the checkbox indicating the Welcome Page will be displayed when the extension is upgraded"
+  },
+  "newTabTitle": {
+    "message": "New Tab",
+    "description": "New tab page title"
+  },
+  "addSite": {
+    "message": "Add site",
+    "description": "Text for adding a site tile"
+  },
+  "editSite": {
+    "message": "Edit site",
+    "description": "Text for editing a site tile"
+  },
+  "btnAdd": {
+    "message": "Add",
+    "description": "Text displayed on an add button"
+  },
+  "close": {
+    "message": "Close",
+    "description": "Text for closing a modal"
+  },
+  "siteTitleLabel": {
+    "message": "Title",
+    "description": "Label for site title input"
+  },
+  "siteUrlLabel": {
+    "message": "URL",
+    "description": "Label for site URL input"
+  },
+  "siteUrlPlaceholder": {
+    "message": "https://example.com",
+    "description": "Placeholder for site URL input"
+  },
+  "pinTopSite": {
+    "message": "Pin to Most Visited",
+    "description": "Tooltip for pinning a most visited site tile"
+  },
+  "unpinTopSite": {
+    "message": "Unpin from Most Visited",
+    "description": "Tooltip for unpinning a most visited site tile"
+  },
+  "removeTopSite": {
+    "message": "Remove from Most Visited",
+    "description": "Tooltip for removing a most visited site tile"
+  },
+  "chromeLogoAlt": {
+    "message": "Chrome Logo",
+    "description": "Alt text for the Chrome logo"
+  },
+  "webStore": {
+    "message": "Web Store",
+    "description": "Chrome Web Store link text"
+  },
+  "mostVisited": {
+    "message": "Most Visited",
+    "description": "Most visited tab label"
+  },
+  "appsTab": {
+    "message": "Apps",
+    "description": "Apps tab label"
   }
 }
