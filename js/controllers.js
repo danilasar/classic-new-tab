@@ -5,10 +5,12 @@ controllers.controller('MainController',
                        ['$scope', 'Apps',
                         function ($scope, Apps) {
     var show_top_key = 'old_ntp.show_top';
+    var hidden_top_key = 'old_ntp.hidden_top_sites';
 
     $scope.tabs = {
         show_top: false
     };
+    $scope.hiddenTopSites = [];
 
     $(window).on("keydown", function (e) {
         if (e.which == 37) { // Left arrow key
@@ -63,7 +65,9 @@ controllers.controller('MainController',
 
     function loadTopSites() {
         return Apps.topSites().then(function (sites) {
-            $scope.top = sites.slice(0, 12);
+            $scope.top = sites.filter(function(site) {
+                return $scope.hiddenTopSites.indexOf(site.url) === -1;
+            }).slice(0, 12);
         });
     }
 
@@ -78,16 +82,38 @@ controllers.controller('MainController',
 
     $scope.$on('UninstalledApp', loadApps);
 
+    $scope.hideTopSite = function(site, event) {
+        if(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        if(!site || !site.url ||
+           $scope.hiddenTopSites.indexOf(site.url) !== -1) {
+            return;
+        }
+
+        $scope.hiddenTopSites.push(site.url);
+        $scope.top = $scope.top.filter(function(topSite) {
+            return topSite.url !== site.url;
+        });
+
+        var obj = {};
+        obj[hidden_top_key] = $scope.hiddenTopSites;
+        Apps.saveSetting(obj);
+    };
+
     $scope.$watch("tabs.show_top", function () {
         savePreferences();
     });
 
     // initial page setup
-    var querySettings = [show_top_key];
+    var querySettings = [show_top_key, hidden_top_key];
 
     Apps.getSetting(querySettings)
         .then(function(settings) {
             $scope.tabs.show_top = settings[show_top_key];
+            $scope.hiddenTopSites = settings[hidden_top_key] || [];
         })
         .then(function(){
             loadApps()

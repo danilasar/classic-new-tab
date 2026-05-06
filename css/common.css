@@ -105,6 +105,10 @@ div[app]:hover .app-actions {
     display: inherit;
 }
 
+.top-site {
+    position: relative;
+}
+
 .app-desc {
     padding: 5px;
     display: block;
@@ -180,6 +184,34 @@ div[app]:hover .app-actions {
     background-color: #e9e9e9;
     border: 1px solid #999;
     border-shadow-color: #666;
+}
+
+.site-dismiss {
+    background-color: rgba(240,240,240,0.95);
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    color: #888;
+    cursor: pointer;
+    display: none;
+    height: 24px;
+    line-height: 22px;
+    padding: 0;
+    position: absolute;
+    right: 24px;
+    text-align: center;
+    top: 0;
+    width: 24px;
+    z-index: 3;
+}
+
+.site-dismiss:hover {
+    background-color: #fff;
+    border-color: #999;
+    color: #555;
+}
+
+.top-site:hover .site-dismiss {
+    display: block;
 }
 
 .container {

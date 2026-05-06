@@ -26,7 +26,7 @@
         </div>
 
         <div class="container top-sites-container" ng-show="tabs.show_top">
-            <div ng-repeat="site in top" class="app-icon">
+            <div ng-repeat="site in top" class="app-icon top-site">
                 <a ng-href="{{ site.url }}" ng-title="{{ site.title }}"
                    target="_self" class="app-icon-container">
                     <div class="site-preview">
@@ -45,6 +45,12 @@
 
                     <span class="app-desc">{{ site.title }}</span>
                 </a>
+                <button class="site-dismiss"
+                        ng-click="hideTopSite(site, $event)"
+                        title="Remove from Most Visited"
+                        type="button">
+                    <i class="fa fa-times"></i>
+                </button>
             </div>
             <span class="clear"></span>
         </div>
