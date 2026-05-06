@@ -466,12 +466,20 @@ footer {
     color: #888;
 }
 
+.tab-dragging {
+    opacity: 0.45;
+}
+
+.tab-drag-over {
+    color: #666;
+}
+
 .tab .tab-bar {
     height: 8px;
     background-color: #ddd;
     margin-bottom: 6px;
 }
 
-.tab:hover .tab-bar, .tab.active .tab-bar {
+.tab:hover .tab-bar, .tab.active .tab-bar, .tab-drag-over .tab-bar {
     background-color: #888;
 }

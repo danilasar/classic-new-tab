@@ -69,8 +69,15 @@
 
         <div class="tabs" ng-hide="screens.length < 2">
             <a class="tab" ng-repeat="screen in screens track by screen.id"
-               ng-class="{'active': activeScreenId === screen.id}"
-               ng-click="setActiveScreen(screen.id)">
+               ng-class="{'active': activeScreenId === screen.id,
+                          'tab-dragging': draggedScreenId === screen.id,
+                          'tab-drag-over': dragOverScreenId === screen.id}"
+               draggable="true"
+               ng-click="setActiveScreen(screen.id)"
+               ont-dragend="endScreenDrag()"
+               ont-dragover="dragOverScreen(screen, $event)"
+               ont-dragstart="startScreenDrag(screen, $event)"
+               ont-drop="dropScreen(screen, $event)">
                 <div class="tab-bar"></div>
                 {{ msg(screen.titleKey) }}
             </a>

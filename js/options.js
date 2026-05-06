@@ -6,6 +6,7 @@ var PINNED_TOP_SITES_KEY = 'old_ntp.pinned_top_sites';
 var TOP_SITE_PREVIEWS_KEY = 'old_ntp.top_site_previews';
 var ENABLED_SCREENS_KEY = 'old_ntp.enabled_screens';
 var SCREEN_CYCLE_KEY = 'old_ntp.cycle_screens';
+var SCREEN_ORDER_KEY = 'old_ntp.screen_order';
 
 var screenDefs = window.newTabScreens || [
     {
@@ -34,6 +35,7 @@ var state = {
     previews: {},
     enabledScreenIds: [],
     cycleScreens: false,
+    screenOrder: [],
     editingIndex: -1
 };
 
@@ -176,6 +178,37 @@ function normalizeEnabledScreens(ids) {
     return enabled.length ? enabled : defaultEnabledScreens();
 }
 
+function normalizeScreenOrder(ids) {
+    var seen = {};
+    var ordered = [];
+
+    (ids || []).forEach(function(id) {
+        if(screenLookup[id] && !seen[id]) {
+            seen[id] = true;
+            ordered.push(id);
+        }
+    });
+
+    screenDefs.forEach(function(screen) {
+        if(!seen[screen.id]) {
+            seen[screen.id] = true;
+            ordered.push(screen.id);
+        }
+    });
+
+    return ordered;
+}
+
+function orderedScreenDefs() {
+    state.screenOrder = normalizeScreenOrder(state.screenOrder);
+
+    return state.screenOrder.map(function(id) {
+        return screenLookup[id];
+    }).filter(function(screen) {
+        return !!screen;
+    });
+}
+
 function saveEnabledScreens(callback) {
     var values = {};
 
@@ -245,7 +278,7 @@ function renderScreens() {
 
     state.enabledScreenIds = normalizeEnabledScreens(state.enabledScreenIds);
 
-    screenDefs.forEach(function(screen) {
+    orderedScreenDefs().forEach(function(screen) {
         var row = document.createElement('label');
         var checkbox = document.createElement('input');
         var textBlock = document.createElement('span');
@@ -515,7 +548,8 @@ function clearPreviews() {
 
 function loadState(callback) {
     storageGet('sync', [HIDDEN_TOP_SITES_KEY, PINNED_TOP_SITES_KEY,
-                        ENABLED_SCREENS_KEY, SCREEN_CYCLE_KEY],
+                        ENABLED_SCREENS_KEY, SCREEN_CYCLE_KEY,
+                        SCREEN_ORDER_KEY],
         function(syncItems) {
             storageGet('local', [TOP_SITE_PREVIEWS_KEY], function(localItems) {
                 state.hiddenTopSites = syncItems[HIDDEN_TOP_SITES_KEY] || [];
@@ -524,6 +558,8 @@ function loadState(callback) {
                 state.enabledScreenIds = syncItems[ENABLED_SCREENS_KEY] ||
                     defaultEnabledScreens();
                 state.cycleScreens = syncItems[SCREEN_CYCLE_KEY] === true;
+                state.screenOrder = normalizeScreenOrder(
+                    syncItems[SCREEN_ORDER_KEY]);
                 callback();
             });
         });

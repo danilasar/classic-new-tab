@@ -7,6 +7,7 @@ controllers.controller('MainController',
     var enabled_screens_key = 'old_ntp.enabled_screens';
     var active_screen_key = 'old_ntp.active_screen';
     var cycle_screens_key = 'old_ntp.cycle_screens';
+    var screen_order_key = 'old_ntp.screen_order';
     var show_top_key = 'old_ntp.show_top';
     var hidden_top_key = 'old_ntp.hidden_top_sites';
     var pinned_top_key = 'old_ntp.pinned_top_sites';
@@ -26,6 +27,10 @@ controllers.controller('MainController',
     $scope.enabledScreenIds = [];
     $scope.activeScreenId = '';
     $scope.cycleScreens = false;
+    $scope.screenOrder = [];
+    $scope.draggedScreenId = '';
+    $scope.dragOverScreenId = '';
+    $scope.suppressScreenTabClick = false;
     $scope.hiddenTopSites = [];
     $scope.pinnedTopSites = [];
     $scope.topSiteOrder = [];
@@ -50,6 +55,39 @@ controllers.controller('MainController',
         });
     }
 
+    function normalizeScreenOrder(ids) {
+        var seen = {};
+        var ordered = [];
+
+        (ids || []).forEach(function(id) {
+            if(screenLookup[id] && !seen[id]) {
+                seen[id] = true;
+                ordered.push(id);
+            }
+        });
+
+        screenDefs.forEach(function(screen) {
+            if(!seen[screen.id]) {
+                seen[screen.id] = true;
+                ordered.push(screen.id);
+            }
+        });
+
+        return ordered;
+    }
+
+    function getOrderedScreenDefs() {
+        var order = normalizeScreenOrder($scope.screenOrder);
+
+        $scope.screenOrder = order;
+
+        return order.map(function(id) {
+            return screenLookup[id];
+        }).filter(function(screen) {
+            return !!screen;
+        });
+    }
+
     function refreshScreens() {
         var enabled = {};
 
@@ -66,7 +104,7 @@ controllers.controller('MainController',
             enabled[$scope.enabledScreenIds[i]] = true;
         }
 
-        $scope.screens = screenDefs.filter(function(def) {
+        $scope.screens = getOrderedScreenDefs().filter(function(def) {
             return enabled[def.id];
         });
 
@@ -82,8 +120,17 @@ controllers.controller('MainController',
         obj[enabled_screens_key] = $scope.enabledScreenIds.slice();
         obj[active_screen_key] = $scope.activeScreenId;
         obj[cycle_screens_key] = $scope.cycleScreens === true;
+        obj[screen_order_key] = $scope.screenOrder.slice();
         obj[show_top_key] = $scope.activeScreenId === 'top';
 
+        Apps.saveSetting(obj);
+    }
+
+    function saveScreenOrder() {
+        var obj = {};
+
+        $scope.screenOrder = normalizeScreenOrder($scope.screenOrder);
+        obj[screen_order_key] = $scope.screenOrder.slice();
         Apps.saveSetting(obj);
     }
 
@@ -161,6 +208,10 @@ controllers.controller('MainController',
     }
 
     $scope.setActiveScreen = function(screenId) {
+        if($scope.suppressScreenTabClick) {
+            return;
+        }
+
         setActiveScreenInternal(screenId);
     };
 
@@ -178,6 +229,84 @@ controllers.controller('MainController',
 
     $scope.showNextScreen = function() {
         cycleScreen(1);
+    };
+
+    $scope.startScreenDrag = function(screen, event) {
+        var dataTransfer;
+
+        if(!screen || !screen.id) {
+            return;
+        }
+
+        $scope.draggedScreenId = screen.id;
+        $scope.dragOverScreenId = screen.id;
+        $scope.suppressScreenTabClick = false;
+
+        dataTransfer = eventDataTransfer(event);
+        if(dataTransfer) {
+            dataTransfer.effectAllowed = 'move';
+            dataTransfer.setData('text/plain', screen.id);
+        }
+    };
+
+    $scope.dragOverScreen = function(screen, event) {
+        var dataTransfer;
+
+        if(!$scope.draggedScreenId || !screen || !screen.id) {
+            return;
+        }
+
+        if(event) {
+            event.preventDefault();
+            dataTransfer = eventDataTransfer(event);
+            if(dataTransfer) {
+                dataTransfer.dropEffect = 'move';
+            }
+        }
+
+        $scope.dragOverScreenId = screen.id;
+    };
+
+    $scope.dropScreen = function(screen, event) {
+        var fromIndex;
+        var toIndex;
+        var moved;
+
+        if(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        if(!$scope.draggedScreenId || !screen || !screen.id ||
+           $scope.draggedScreenId === screen.id) {
+            $scope.endScreenDrag();
+            return;
+        }
+
+        $scope.screenOrder = normalizeScreenOrder($scope.screenOrder);
+        fromIndex = $scope.screenOrder.indexOf($scope.draggedScreenId);
+        toIndex = $scope.screenOrder.indexOf(screen.id);
+
+        if(fromIndex === -1 || toIndex === -1) {
+            $scope.endScreenDrag();
+            return;
+        }
+
+        moved = $scope.screenOrder.splice(fromIndex, 1)[0];
+        $scope.screenOrder.splice(toIndex, 0, moved);
+        refreshScreens();
+        saveScreenOrder();
+        $scope.endScreenDrag();
+    };
+
+    $scope.endScreenDrag = function() {
+        $scope.draggedScreenId = '';
+        $scope.dragOverScreenId = '';
+        $scope.suppressScreenTabClick = true;
+
+        window.setTimeout(function() {
+            $scope.suppressScreenTabClick = false;
+        }, 250);
     };
 
     $(window).on("keydown", function (e) {
@@ -206,12 +335,23 @@ controllers.controller('MainController',
 
     if(chrome.storage && chrome.storage.onChanged) {
         chrome.storage.onChanged.addListener(function(changes, areaName) {
-            if(areaName !== 'sync' || !changes[cycle_screens_key]) {
+            if(areaName !== 'sync') {
                 return;
             }
 
-            $scope.cycleScreens = changes[cycle_screens_key].newValue === true;
-            $scope.$apply();
+            if(changes[cycle_screens_key]) {
+                $scope.cycleScreens = changes[cycle_screens_key].newValue === true;
+            }
+
+            if(changes[screen_order_key]) {
+                $scope.screenOrder = normalizeScreenOrder(
+                    changes[screen_order_key].newValue || []);
+                refreshScreens();
+            }
+
+            if(changes[cycle_screens_key] || changes[screen_order_key]) {
+                $scope.$apply();
+            }
         });
     }
 
@@ -242,6 +382,11 @@ controllers.controller('MainController',
         }
 
         return topSiteKey(url);
+    }
+
+    function eventDataTransfer(event) {
+        return event && (event.dataTransfer ||
+            (event.originalEvent && event.originalEvent.dataTransfer));
     }
 
     function siteFromPinned(site) {
@@ -468,6 +613,8 @@ controllers.controller('MainController',
     };
 
     $scope.startTopSiteDrag = function(site, index, event) {
+        var dataTransfer;
+
         if(!site || !site.url) {
             return;
         }
@@ -476,13 +623,16 @@ controllers.controller('MainController',
         $scope.dragOverTopSiteIndex = index;
         $scope.suppressTopSiteClick = false;
 
-        if(event.dataTransfer) {
-            event.dataTransfer.effectAllowed = 'move';
-            event.dataTransfer.setData('text/plain', site.url);
+        dataTransfer = eventDataTransfer(event);
+        if(dataTransfer) {
+            dataTransfer.effectAllowed = 'move';
+            dataTransfer.setData('text/plain', site.url);
         }
     };
 
     $scope.dragOverTopSite = function(index, event) {
+        var dataTransfer;
+
         if($scope.draggedTopSiteIndex === null ||
            $scope.draggedTopSiteIndex === undefined) {
             return;
@@ -490,8 +640,9 @@ controllers.controller('MainController',
 
         if(event) {
             event.preventDefault();
-            if(event.dataTransfer) {
-                event.dataTransfer.dropEffect = 'move';
+            dataTransfer = eventDataTransfer(event);
+            if(dataTransfer) {
+                dataTransfer.dropEffect = 'move';
             }
         }
 
@@ -618,8 +769,8 @@ controllers.controller('MainController',
 
     // initial page setup
     var querySettings = [enabled_screens_key, active_screen_key, cycle_screens_key,
-                         show_top_key, hidden_top_key, pinned_top_key,
-                         top_site_order_key];
+                         screen_order_key, show_top_key, hidden_top_key,
+                         pinned_top_key, top_site_order_key];
 
     Apps.getSetting(querySettings)
         .then(function(settings) {
@@ -637,6 +788,7 @@ controllers.controller('MainController',
             $scope.pinnedTopSites = settings[pinned_top_key] || [];
             $scope.topSiteOrder = settings[top_site_order_key] || [];
             $scope.cycleScreens = settings[cycle_screens_key] === true;
+            $scope.screenOrder = normalizeScreenOrder(settings[screen_order_key]);
 
             if(settings[active_screen_key] && screenLookup[settings[active_screen_key]]) {
                 $scope.activeScreenId = settings[active_screen_key];
