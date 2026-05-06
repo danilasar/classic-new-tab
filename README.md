@@ -1,5 +1,7 @@
 # Classic New Tab
 
+English | [Русский](README.ru.md)
+
 Classic New Tab is a Chrome extension that replaces the default new tab page with a classic layout for apps, bookmarks, and most visited sites.
 
 The extension keeps the current tab experience local and practical:
