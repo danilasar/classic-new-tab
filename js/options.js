@@ -1,257 +1,354 @@
-String.prototype.startsWith = function (str) {
-    return (this.indexOf(str) === 0);
-}
+'use strict';
+/*global chrome*/
 
-var __down, __up;
+var HIDDEN_TOP_SITES_KEY = 'old_ntp.hidden_top_sites';
+var PINNED_TOP_SITES_KEY = 'old_ntp.pinned_top_sites';
+var TOP_SITE_PREVIEWS_KEY = 'old_ntp.top_site_previews';
 
-var allowedProtocols = ["http://", "https://", "about:", "file://", "file:\\", "file:///", "chrome://", "chrome-internal://", "chrome-extension://"];
-
-var chromePages = {
-    Apps      : "chrome://apps/",
-    Extensions: "chrome://extensions/",
-    History   : "chrome://history/",
-    Downloads : "chrome://downloads/",
-    Bookmarks : "chrome://bookmarks/",
-    Internals : "chrome://net-internals"
-}
-var aboutPages = ["about:blank", "about:version", "about:plugins", "about:cache", "about:memory", "about:histograms", "about:dns", "about:terms", "about:credits", "about:net-internals"];
-
-var popularPages = {
-    "Google+"  : "https://plus.google.com",
-    "Facebook" : "https://www.facebook.com",
-    "Twitter"  : "https://twitter.com",
-    "Yahoo"    : "https://www.yahoo.com",
-    "Wikipedia": "http://www.wikipedia.org",
-    "Digg"     : "http://digg.com",
-    "Delicious": "https://delicious.com",
-    "Slashdot" : "http://www.slashdot.org"
+var state = {
+    hiddenTopSites: [],
+    pinnedTopSites: [],
+    previews: {},
+    editingIndex: -1
 };
 
-var customPages = {
-    "New Tab Redirect 'Apps'" : ""
-};
-
-var empty = [
-    []
-];
-var langMap = {
-    "options_heading"               : [chrome.i18n.getMessage("extName")],
-    "options_subheading"            : empty,
-    "options_status"                : empty,
-    "options_url_label"             : empty,
-    "options_hide_hint"             : empty,
-    "options_localFiles_hint"       : empty,
-    "options_quickSave_headingLarge": empty,
-    "options_quickSave_headingSmall": empty,
-    "options_chromePages"           : empty,
-    "options_aboutPages"            : empty,
-    "options_popularPages"          : empty,
-    "options_donate_headingLarge"   : empty,
-    "options_donate_headingSmall"   : empty,
-    "options_anyQuestions"          : [
-        '<a href="https://github.com/jimschubert/newtab-redirect/wiki" target="_blank">wiki</a>'
-    ],
-    "options_createdBy"             : empty,
-    "options_footerPlea"            : empty,
-    "options_githubTitle"           : empty,
-    "btnSave"                       : empty,
-    "btnCancel"                     : empty,
-    "options_chkSync"               : empty,
-    "options_chkShowWelcome"        : empty
-};
-
-// save options to localStorage.
-function save_options() {
-    var _url = document.getElementById('custom-url');
-    var url = _url.value;
-    save(url);
+function msg(key) {
+    return chrome.i18n.getMessage(key) || key;
 }
 
-function save(url) {
-    clearTimeout(__up);
-    clearTimeout(__down);
+function text(node, value) {
+    node.textContent = value;
+}
 
-    var _sts = document.getElementById('status');
-    var validatedUrl = url ? getGoodUrl(url) : url;
-    var saveOptions = {"url": validatedUrl };
-    saveOptions.showWelcome = document.getElementById('chkShowWelcome').checked;
-    saveOptions.syncOptions = document.getElementById('chkSync').checked;
-    chrome.storage.local.set(saveOptions, function () {
-        _sts.innerText = chrome.i18n.getMessage("options_status", [
-            []
-        ]);
-        _sts.style.display = "block";
-        _sts.className = "slideDown";
-        __up = setTimeout(function () {
-            clearTimeout(__down);
-            _sts.className = "slideUp";
-            __down = setTimeout(function () {
-                _sts.className = "";
-                _sts.style.display = "none";
-            }, 2000);
-        }, 3050);
-    });
-
-    if (saveOptions.syncOptions) {
-        chrome.storage.sync.set(saveOptions);
+function clearNode(node) {
+    while(node.firstChild) {
+        node.removeChild(node.firstChild);
     }
 }
 
-function restore_options() {
-    // always restore options from local.
-    var savedOptions = [ "syncOptions", "showWelcome", "url" ];
-    chrome.storage.local.get(savedOptions, function (items) {
-        if(items.url){
-            document.getElementById('custom-url').value = items.url;
-        }
-        document.getElementById('chkShowWelcome').checked =
-            items.showWelcome != undefined ? items.showWelcome : true;
-        document.getElementById('chkSync').checked =
-            items.syncOptions != undefined ? items.syncOptions : false;
+function storageGet(area, keys, callback) {
+    chrome.storage[area].get(keys, function(items) {
+        callback(items || {});
     });
 }
 
-function sync_options(){
-    chrome.storage.sync.get("url", function(items) {
-        if(items.url){
-            document.getElementById('chkSync').checked = true;
-            saveQuickLink(items.url);
+function storageSet(area, values, callback) {
+    chrome.storage[area].set(values, function() {
+        if(callback) {
+            callback();
         }
     });
 }
 
-function saveQuickLink(url) {
-    var uurl = url ? unescape(url) : "";
-    document.getElementById('custom-url').value = uurl;
-    save(uurl);
-    return false;
+function normalizeUrl(url) {
+    var parser;
+
+    url = (url || '').trim();
+
+    if(url && !/^[a-z]+:\/\//i.test(url)) {
+        url = 'https://' + url;
+    }
+
+    if(!/^https?:\/\//i.test(url)) {
+        return '';
+    }
+
+    parser = document.createElement('a');
+    parser.href = url;
+    parser.hash = '';
+
+    return parser.href;
 }
 
-function getGoodUrl(url) {
-    var goodUrl;
+function topSiteKey(url) {
+    return normalizeUrl(url);
+}
 
-    if (protocolPasses(url) && url.length > 8) {
-        console.log("getGoodUrl: Protocol accepted");
-        goodUrl = url;
+function showStatus(message) {
+    var status = document.getElementById('status');
+
+    text(status, message);
+    status.classList.add('status-visible');
+
+    window.clearTimeout(showStatus.timer);
+    showStatus.timer = window.setTimeout(function() {
+        status.classList.remove('status-visible');
+    }, 2200);
+}
+
+function localizePage() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function(node) {
+        text(node, msg(node.getAttribute('data-i18n')));
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-title]'), function(node) {
+        node.setAttribute('title', msg(node.getAttribute('data-i18n-title')));
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-placeholder]'), function(node) {
+        node.setAttribute('placeholder',
+                          msg(node.getAttribute('data-i18n-placeholder')));
+    });
+
+    document.title = msg('settingsTitle');
+}
+
+function savePinnedTopSites(callback) {
+    var values = {};
+
+    values[PINNED_TOP_SITES_KEY] = state.pinnedTopSites;
+    storageSet('sync', values, callback);
+}
+
+function saveHiddenTopSites(callback) {
+    var values = {};
+
+    values[HIDDEN_TOP_SITES_KEY] = state.hiddenTopSites;
+    storageSet('sync', values, callback);
+}
+
+function renderPreviewCount() {
+    var count = Object.keys(state.previews || {}).length;
+
+    text(document.getElementById('previewCount'),
+         chrome.i18n.getMessage('settingsPreviewCount', [String(count)]) ||
+         String(count));
+}
+
+function createButton(label, className, callback) {
+    var button = document.createElement('button');
+
+    button.type = 'button';
+    button.className = className;
+    text(button, label);
+    button.addEventListener('click', callback);
+
+    return button;
+}
+
+function createUrlBlock(title, url) {
+    var block = document.createElement('div');
+    var titleNode = document.createElement('strong');
+    var urlNode = document.createElement('span');
+
+    block.className = 'item-main';
+    titleNode.className = 'item-title';
+    urlNode.className = 'item-url';
+
+    text(titleNode, title || url);
+    text(urlNode, url);
+
+    block.appendChild(titleNode);
+    block.appendChild(urlNode);
+
+    return block;
+}
+
+function renderPinnedTopSites() {
+    var list = document.getElementById('pinnedTiles');
+    var empty = document.getElementById('emptyPinned');
+
+    clearNode(list);
+    empty.hidden = state.pinnedTopSites.length > 0;
+
+    state.pinnedTopSites.forEach(function(site, index) {
+        var row = document.createElement('div');
+        var actions = document.createElement('div');
+
+        row.className = 'settings-row';
+        actions.className = 'item-actions';
+
+        actions.appendChild(createButton(msg('editSite'), 'secondary-button',
+            function() {
+                openTileForm(index);
+            }));
+        actions.appendChild(createButton(msg('settingsRemove'), 'danger-button',
+            function() {
+                removePinnedTopSite(index);
+            }));
+
+        row.appendChild(createUrlBlock(site.title, site.url));
+        row.appendChild(actions);
+        list.appendChild(row);
+    });
+}
+
+function renderHiddenTopSites() {
+    var list = document.getElementById('hiddenTiles');
+    var empty = document.getElementById('emptyHidden');
+    var restoreAll = document.getElementById('restoreAllHidden');
+
+    clearNode(list);
+    empty.hidden = state.hiddenTopSites.length > 0;
+    restoreAll.disabled = state.hiddenTopSites.length === 0;
+
+    state.hiddenTopSites.forEach(function(url, index) {
+        var row = document.createElement('div');
+        var actions = document.createElement('div');
+
+        row.className = 'settings-row';
+        actions.className = 'item-actions';
+
+        actions.appendChild(createButton(msg('settingsRestore'), 'secondary-button',
+            function() {
+                restoreHiddenTopSite(index);
+            }));
+
+        row.appendChild(createUrlBlock(url, url));
+        row.appendChild(actions);
+        list.appendChild(row);
+    });
+}
+
+function render() {
+    renderPinnedTopSites();
+    renderHiddenTopSites();
+    renderPreviewCount();
+}
+
+function closeTileForm() {
+    var form = document.getElementById('tileForm');
+
+    state.editingIndex = -1;
+    form.hidden = true;
+    form.reset();
+}
+
+function openTileForm(index) {
+    var form = document.getElementById('tileForm');
+    var site = index >= 0 ? state.pinnedTopSites[index] : null;
+
+    state.editingIndex = typeof index === 'number' ? index : -1;
+    document.getElementById('tileTitle').value = site ? site.title : '';
+    document.getElementById('tileUrl').value = site ? site.url : '';
+    form.hidden = false;
+    document.getElementById('tileTitle').focus();
+}
+
+function isDuplicatePinnedUrl(url, ignoreIndex) {
+    return state.pinnedTopSites.some(function(site, index) {
+        return index !== ignoreIndex && topSiteKey(site.url) === url;
+    });
+}
+
+function saveTile(event) {
+    var title = document.getElementById('tileTitle').value.trim();
+    var url = topSiteKey(document.getElementById('tileUrl').value);
+    var index = state.editingIndex;
+    var original = index >= 0 ? state.pinnedTopSites[index] : null;
+
+    event.preventDefault();
+
+    if(!url) {
+        showStatus(msg('settingsInvalidUrl'));
+        return;
+    }
+
+    if(isDuplicatePinnedUrl(url, index)) {
+        showStatus(msg('settingsDuplicateUrl'));
+        return;
+    }
+
+    if(index >= 0) {
+        state.pinnedTopSites[index] = {
+            title: title || url,
+            url: url,
+            custom: !!original.custom,
+            sourceUrl: original.sourceUrl || ''
+        };
     } else {
-        var protocol = 'http://';
-        var parts = url.split('://');
-        if (parts != undefined && parts != null && parts.length > 1) {
-            goodUrl = protocol + parts[1];
-            console.log("getGoodUrl: Protocol %s not recognized, using %s", parts[0], goodUrl);
-        } else {
-            goodUrl = protocol + url;
-            console.log("getGoodUrl: Unexpected input. Was %s, using %s", url, goodUrl);
-        }
+        state.pinnedTopSites.push({
+            title: title || url,
+            url: url,
+            custom: true,
+            sourceUrl: ''
+        });
     }
 
-    return goodUrl;
+    savePinnedTopSites(function() {
+        closeTileForm();
+        renderPinnedTopSites();
+        showStatus(msg('settingsSaved'));
+    });
 }
 
-function protocolPasses(url) {
-    if (typeof(url) == 'undefined' || url == null) {
-        return false;
+function removePinnedTopSite(index) {
+    var site = state.pinnedTopSites[index];
+    var sourceKey = topSiteKey(site && site.sourceUrl);
+
+    if(!site) {
+        return;
     }
-    if (url.startsWith(allowedProtocols[3]) && !url.startsWith(allowedProtocols[5])) {
-        url.replace(allowedProtocols[3], allowedProtocols[5]);
-    } else if (url.startsWith(allowedProtocols[4])) {
-        url.replace(allowedProtocols[4], allowedProtocols[5]);
+
+    state.pinnedTopSites.splice(index, 1);
+
+    if(sourceKey) {
+        state.hiddenTopSites = state.hiddenTopSites.filter(function(url) {
+            return topSiteKey(url) !== sourceKey;
+        });
     }
-    for (var p in allowedProtocols) {
-        if (url.startsWith(allowedProtocols[p])) {
-            return true;
-        }
-    }
-    return false;
+
+    savePinnedTopSites(function() {
+        saveHiddenTopSites(function() {
+            render();
+            showStatus(msg('settingsSaved'));
+        });
+    });
+}
+
+function restoreHiddenTopSite(index) {
+    state.hiddenTopSites.splice(index, 1);
+
+    saveHiddenTopSites(function() {
+        renderHiddenTopSites();
+        showStatus(msg('settingsSaved'));
+    });
+}
+
+function restoreAllHiddenTopSites() {
+    state.hiddenTopSites = [];
+
+    saveHiddenTopSites(function() {
+        renderHiddenTopSites();
+        showStatus(msg('settingsSaved'));
+    });
+}
+
+function clearPreviews() {
+    chrome.storage.local.remove(TOP_SITE_PREVIEWS_KEY, function() {
+        state.previews = {};
+        renderPreviewCount();
+        showStatus(msg('settingsCleared'));
+    });
+}
+
+function loadState(callback) {
+    storageGet('sync', [HIDDEN_TOP_SITES_KEY, PINNED_TOP_SITES_KEY],
+        function(syncItems) {
+            storageGet('local', [TOP_SITE_PREVIEWS_KEY], function(localItems) {
+                state.hiddenTopSites = syncItems[HIDDEN_TOP_SITES_KEY] || [];
+                state.pinnedTopSites = syncItems[PINNED_TOP_SITES_KEY] || [];
+                state.previews = localItems[TOP_SITE_PREVIEWS_KEY] || {};
+                callback();
+            });
+        });
+}
+
+function bindEvents() {
+    document.getElementById('addTile').addEventListener('click', function() {
+        openTileForm(-1);
+    });
+    document.getElementById('cancelTile').addEventListener('click', closeTileForm);
+    document.getElementById('tileForm').addEventListener('submit', saveTile);
+    document.getElementById('restoreAllHidden')
+        .addEventListener('click', restoreAllHiddenTopSites);
+    document.getElementById('clearPreviews').addEventListener('click', clearPreviews);
 }
 
 function init() {
-    document.getElementById('original-newtab')
-        .addEventListener("click", function () {
-            chrome.tabs.create({ "url": "chrome://apps/"});
-        }, true);
-
-    document.getElementById('btnSync')
-        .addEventListener("click", sync_options, true);
-
-    document.getElementById('btnSave')
-        .addEventListener("click", save_options, true);
-
-    // also fire the save event on checkbox changes
-    document.getElementById('chkShowWelcome')
-        .addEventListener("change", save_options, true);
-
-    document.getElementById('chkSync')
-        .addEventListener("change", save_options, true);
-
-    document.getElementById('btnCancel')
-        .addEventListener("click", restore_options, true);
-
-    restore_options();
-    var _customs = document.getElementById('customs');
-    var _chromes = document.getElementById('chromes');
-    var _abouts = document.getElementById('abouts');
-    var _pops = document.getElementById('popular');
-
-    Object.keys(customPages).forEach(function (key, idx) {
-        var value = customPages[key];
-        var anchor = "<a data-target='" + value + "'>" + key + "</a>";
-        var item = document.createElement('li');
-        item.innerHTML = anchor;
-        _customs.appendChild(item);
-    });
-
-    Object.keys(chromePages).forEach(function (key, idx) {
-        var value = chromePages[key];
-        var anchor = "<a data-target='" + value + "'>" + key + "</a>";
-        var item = document.createElement('li');
-        item.innerHTML = anchor;
-        _chromes.appendChild(item);
-    });
-
-    for (var i = aboutPages.length - 1; i >= 0; i--) {
-        var $this = aboutPages[i];
-        var anchor = "<a data-target='" + $this + "'>" + $this + "</a>";
-        var item = document.createElement('li');
-        item.innerHTML = anchor;
-        _abouts.appendChild(item);
-    }
-    ;
-
-    Object.keys(popularPages).forEach(function (key, idx) {
-        var value = popularPages[key];
-        var anchor = "<a data-target='" + value + "'>" + key + "</a>";
-        var item = document.createElement('li');
-        item.innerHTML = anchor;
-        _pops.appendChild(item);
-    });
-
-    Object.keys(langMap).forEach(function (key, idx) {
-        var item = key,
-            extras = langMap[key];
-        local(item, extras);
-    });
-
-    document.body.addEventListener("click", function (e) {
-        var target = e.target && e.target.getAttribute("data-target");
-        if (target !== null && target !== undefined) {
-            saveQuickLink(target);
-        }
-    }, true);
+    localizePage();
+    bindEvents();
+    loadState(render);
 }
 
-function local(elem, supp) {
-    var item = document.getElementById(elem);
-    if (item) {
-        var txt = chrome.i18n.getMessage(elem, supp);
-        // write localized text, otherwise don't update existing text.
-        if (txt) {
-            item.innerHTML = chrome.i18n.getMessage(elem, supp);
-        } else {
-            console.log("chrome.i18n.getMessage: " + elem + " missing");
-        }
-    }
-}
-
-window.addEventListener("DOMContentLoaded", init, true);
-
+window.addEventListener('DOMContentLoaded', init, true);

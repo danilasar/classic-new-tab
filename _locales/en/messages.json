@@ -183,5 +183,91 @@
   "appsTab": {
     "message": "Apps",
     "description": "Apps tab label"
+  },
+  "settingsTitle": {
+    "message": "Old New Tab settings",
+    "description": "Options page title"
+  },
+  "settingsHeading": {
+    "message": "Old New Tab settings",
+    "description": "Options page heading"
+  },
+  "settingsSubtitle": {
+    "message": "Manage the Most Visited tiles, hidden sites, and saved thumbnails.",
+    "description": "Options page intro text"
+  },
+  "settingsPinnedHeading": {
+    "message": "Pinned and custom tiles",
+    "description": "Pinned tiles section heading"
+  },
+  "settingsPinnedDescription": {
+    "message": "These tiles are shown before Chrome's own Most Visited suggestions.",
+    "description": "Pinned tiles section description"
+  },
+  "settingsHiddenHeading": {
+    "message": "Hidden tiles",
+    "description": "Hidden top sites section heading"
+  },
+  "settingsHiddenDescription": {
+    "message": "Sites removed from Most Visited are kept here so they can be restored.",
+    "description": "Hidden top sites section description"
+  },
+  "settingsPreviewsHeading": {
+    "message": "Thumbnails",
+    "description": "Thumbnails section heading"
+  },
+  "settingsPreviewsDescription": {
+    "message": "The extension saves screenshots locally for visible Most Visited tiles.",
+    "description": "Thumbnails section description"
+  },
+  "settingsNoPinned": {
+    "message": "No pinned or custom tiles yet.",
+    "description": "Empty pinned tiles text"
+  },
+  "settingsNoHidden": {
+    "message": "No hidden tiles.",
+    "description": "Empty hidden tiles text"
+  },
+  "settingsRestore": {
+    "message": "Restore",
+    "description": "Restore button text"
+  },
+  "settingsRestoreAll": {
+    "message": "Restore all",
+    "description": "Restore all button text"
+  },
+  "settingsRemove": {
+    "message": "Remove",
+    "description": "Remove button text"
+  },
+  "settingsClearPreviews": {
+    "message": "Clear thumbnails",
+    "description": "Clear thumbnails button text"
+  },
+  "settingsPreviewCount": {
+    "message": "$COUNT$ saved thumbnail(s)",
+    "description": "Saved thumbnail count text",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "settingsSaved": {
+    "message": "Settings saved.",
+    "description": "Settings saved status text"
+  },
+  "settingsCleared": {
+    "message": "Thumbnails cleared.",
+    "description": "Thumbnails cleared status text"
+  },
+  "settingsInvalidUrl": {
+    "message": "Enter a valid http or https URL.",
+    "description": "Invalid URL status text"
+  },
+  "settingsDuplicateUrl": {
+    "message": "This tile is already in the list.",
+    "description": "Duplicate URL status text"
   }
 }

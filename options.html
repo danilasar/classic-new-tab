@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="css/options.css">
+</head>
+<body>
+    <header class="options-header">
+        <img src="images/icon128.png" alt="" class="options-icon">
+        <div>
+            <h1 data-i18n="settingsHeading"></h1>
+            <p data-i18n="settingsSubtitle"></p>
+        </div>
+    </header>
+
+    <main class="options-shell">
+        <section class="settings-section">
+            <div class="section-toolbar">
+                <div>
+                    <h2 data-i18n="settingsPinnedHeading"></h2>
+                    <p data-i18n="settingsPinnedDescription"></p>
+                </div>
+                <button id="addTile" type="button" class="primary-button" data-i18n="addSite"></button>
+            </div>
+
+            <form id="tileForm" class="tile-form" hidden>
+                <label>
+                    <span data-i18n="siteTitleLabel"></span>
+                    <input id="tileTitle" type="text" autocomplete="off">
+                </label>
+                <label>
+                    <span data-i18n="siteUrlLabel"></span>
+                    <input id="tileUrl" type="text" autocomplete="off" required data-i18n-placeholder="siteUrlPlaceholder">
+                </label>
+                <div class="form-actions">
+                    <button id="cancelTile" type="button" class="secondary-button" data-i18n="btnCancel"></button>
+                    <button id="saveTile" type="submit" class="primary-button" data-i18n="btnSave"></button>
+                </div>
+            </form>
+
+            <div id="pinnedTiles" class="settings-list"></div>
+            <p id="emptyPinned" class="empty-state" hidden data-i18n="settingsNoPinned"></p>
+        </section>
+
+        <section class="settings-section">
+            <div class="section-toolbar">
+                <div>
+                    <h2 data-i18n="settingsHiddenHeading"></h2>
+                    <p data-i18n="settingsHiddenDescription"></p>
+                </div>
+                <button id="restoreAllHidden" type="button" class="secondary-button" data-i18n="settingsRestoreAll"></button>
+            </div>
+
+            <div id="hiddenTiles" class="settings-list"></div>
+            <p id="emptyHidden" class="empty-state" hidden data-i18n="settingsNoHidden"></p>
+        </section>
+
+        <section class="settings-section">
+            <div class="section-toolbar">
+                <div>
+                    <h2 data-i18n="settingsPreviewsHeading"></h2>
+                    <p data-i18n="settingsPreviewsDescription"></p>
+                    <p id="previewCount" class="meta-line"></p>
+                </div>
+                <button id="clearPreviews" type="button" class="secondary-button" data-i18n="settingsClearPreviews"></button>
+            </div>
+        </section>
+    </main>
+
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+
+    <script src="js/options.js"></script>
+</body>
+</html>

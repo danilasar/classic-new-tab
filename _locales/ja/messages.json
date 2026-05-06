@@ -178,5 +178,91 @@
   "appsTab": {
     "message": "Приложения",
     "description": "Apps tab label"
+  },
+  "settingsTitle": {
+    "message": "Настройки Old New Tab",
+    "description": "Options page title"
+  },
+  "settingsHeading": {
+    "message": "Настройки Old New Tab",
+    "description": "Options page heading"
+  },
+  "settingsSubtitle": {
+    "message": "Управление плитками часто посещаемых сайтов, скрытыми сайтами и сохраненными миниатюрами.",
+    "description": "Options page intro text"
+  },
+  "settingsPinnedHeading": {
+    "message": "Закрепленные и свои плитки",
+    "description": "Pinned tiles section heading"
+  },
+  "settingsPinnedDescription": {
+    "message": "Эти плитки показываются перед предложениями Chrome в часто посещаемых.",
+    "description": "Pinned tiles section description"
+  },
+  "settingsHiddenHeading": {
+    "message": "Скрытые плитки",
+    "description": "Hidden top sites section heading"
+  },
+  "settingsHiddenDescription": {
+    "message": "Сайты, удаленные из часто посещаемых, хранятся здесь, чтобы их можно было вернуть.",
+    "description": "Hidden top sites section description"
+  },
+  "settingsPreviewsHeading": {
+    "message": "Миниатюры",
+    "description": "Thumbnails section heading"
+  },
+  "settingsPreviewsDescription": {
+    "message": "Расширение локально сохраняет скриншоты для видимых плиток часто посещаемых сайтов.",
+    "description": "Thumbnails section description"
+  },
+  "settingsNoPinned": {
+    "message": "Закрепленных или своих плиток пока нет.",
+    "description": "Empty pinned tiles text"
+  },
+  "settingsNoHidden": {
+    "message": "Скрытых плиток нет.",
+    "description": "Empty hidden tiles text"
+  },
+  "settingsRestore": {
+    "message": "Вернуть",
+    "description": "Restore button text"
+  },
+  "settingsRestoreAll": {
+    "message": "Вернуть все",
+    "description": "Restore all button text"
+  },
+  "settingsRemove": {
+    "message": "Удалить",
+    "description": "Remove button text"
+  },
+  "settingsClearPreviews": {
+    "message": "Очистить миниатюры",
+    "description": "Clear thumbnails button text"
+  },
+  "settingsPreviewCount": {
+    "message": "Сохранено миниатюр: $COUNT$",
+    "description": "Saved thumbnail count text",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "settingsSaved": {
+    "message": "Настройки сохранены.",
+    "description": "Settings saved status text"
+  },
+  "settingsCleared": {
+    "message": "Миниатюры очищены.",
+    "description": "Thumbnails cleared status text"
+  },
+  "settingsInvalidUrl": {
+    "message": "Введите корректный http или https URL.",
+    "description": "Invalid URL status text"
+  },
+  "settingsDuplicateUrl": {
+    "message": "Эта плитка уже есть в списке.",
+    "description": "Duplicate URL status text"
   }
 }

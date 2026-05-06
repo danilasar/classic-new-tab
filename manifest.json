@@ -8,6 +8,7 @@
   "chrome_url_overrides": {
     "newtab": "main.html"
   },
+  "options_page": "options.html",
   "permissions": [
     "storage",
     "topSites",
