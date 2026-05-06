@@ -187,15 +187,8 @@ div[app]:hover .app-actions {
     border-shadow-color: #666;
 }
 
-.top-sites-tools {
-    display: block;
-    height: 34px;
-    margin-bottom: 10px;
-    text-align: left;
-}
-
-.top-site-add-toggle,
 .site-pin,
+.site-edit,
 .site-dismiss {
     background-color: rgba(240,240,240,0.95);
     border: 1px solid #ccc;
@@ -203,13 +196,8 @@ div[app]:hover .app-actions {
     cursor: pointer;
 }
 
-.top-site-add-toggle {
-    border-radius: 4px;
-    height: 28px;
-    width: 28px;
-}
-
 .site-pin,
+.site-edit,
 .site-dismiss {
     border-radius: 50%;
     display: none;
@@ -225,6 +213,10 @@ div[app]:hover .app-actions {
 }
 
 .site-pin {
+    right: 80px;
+}
+
+.site-edit {
     right: 52px;
 }
 
@@ -232,8 +224,8 @@ div[app]:hover .app-actions {
     right: 24px;
 }
 
-.top-site-add-toggle:hover,
 .site-pin:hover,
+.site-edit:hover,
 .site-dismiss:hover {
     background-color: #fff;
     border-color: #999;
@@ -241,8 +233,29 @@ div[app]:hover .app-actions {
 }
 
 .top-site:hover .site-pin,
+.top-site:hover .site-edit,
 .top-site:hover .site-dismiss {
     display: block;
+}
+
+.top-site-add-button {
+    color: #777;
+    cursor: pointer;
+}
+
+.site-preview-add {
+    background-color: #f3f3f3;
+    color: #aaa;
+    font-size: 28px;
+    line-height: 148px;
+    padding: 0;
+    text-align: center;
+}
+
+.top-site-add-button:hover .site-preview-add {
+    background-color: #e9e9e9;
+    border-color: #999;
+    color: #888;
 }
 
 .modal-overlay {

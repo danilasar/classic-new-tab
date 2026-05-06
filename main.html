@@ -26,14 +26,6 @@
         </div>
 
         <div class="container top-sites-container" ng-show="tabs.show_top">
-            <div class="top-sites-tools">
-                <button class="top-site-add-toggle"
-                        ng-click="openAddTopSite()"
-                        title="Add site"
-                        type="button">
-                    <i class="fa fa-plus"></i>
-                </button>
-            </div>
             <div ng-repeat="site in top" class="app-icon top-site">
                 <a ng-href="{{ site.url }}" ng-title="{{ site.title }}"
                    target="_self" class="app-icon-container">
@@ -60,6 +52,12 @@
                         type="button">
                     <i class="fa fa-thumb-tack"></i>
                 </button>
+                <button class="site-edit"
+                        ng-click="openEditTopSite(site, $event)"
+                        title="Edit site"
+                        type="button">
+                    <i class="fa fa-pencil"></i>
+                </button>
                 <button class="site-dismiss"
                         ng-click="removeTopSite(site, $event)"
                         title="{{ site.pinned ? 'Unpin from Most Visited' : 'Remove from Most Visited' }}"
@@ -67,32 +65,45 @@
                     <i class="fa fa-times"></i>
                 </button>
             </div>
+            <div class="app-icon top-site-add-tile" ng-show="top.length < 12">
+                <a class="app-icon-container top-site-add-button"
+                   href=""
+                   ng-click="openAddTopSite($event)"
+                   title="Add site">
+                    <div class="site-preview site-preview-add">
+                        <i class="fa fa-plus"></i>
+                    </div>
+                    <span class="app-desc">Add site</span>
+                </a>
+            </div>
             <span class="clear"></span>
         </div>
     </div>
 
-    <div class="modal-overlay" ng-show="showAddTopSite" ng-click="closeAddTopSite()">
+    <div class="modal-overlay" ng-show="tileModal.open" ng-click="closeTileModal()">
         <form class="top-site-modal"
               ng-click="$event.stopPropagation()"
-              ng-submit="addTopSite($event)">
+              ng-submit="saveTileModal($event)">
             <button class="top-site-modal-close"
-                    ng-click="closeAddTopSite()"
+                    ng-click="closeTileModal()"
                     title="Close"
                     type="button">
                 <i class="fa fa-times"></i>
             </button>
-            <h2>Add site</h2>
+            <h2>{{ tileModal.mode === 'edit' ? 'Edit site' : 'Add site' }}</h2>
             <label>
                 Title
-                <input ng-model="newTopSite.title" type="text" />
+                <input ng-model="tileModal.title" type="text" />
             </label>
             <label>
                 URL
-                <input ng-model="newTopSite.url"
+                <input ng-model="tileModal.url"
                        placeholder="https://example.com"
                        type="text" />
             </label>
-            <button class="top-site-modal-submit" type="submit">Add</button>
+            <button class="top-site-modal-submit" type="submit">
+                {{ tileModal.mode === 'edit' ? 'Save' : 'Add' }}
+            </button>
         </form>
     </div>
 
