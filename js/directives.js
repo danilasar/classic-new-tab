@@ -48,25 +48,34 @@ directives.directive('chromeLaunch', ['$log', 'Apps', function($log, Apps){
         restrict: 'A',
 
         scope: {
-            id: '=chromeLaunch',
-            type: '=chromeType',
-            url: '=href'
+            app: '=chromeLaunch'
         },
 
         link: function($scope, $element, $attrs) {
-            if($scope.id){
+            if($scope.app){
                 $element.bind('click', function(e){
+                    var url;
+
                     e.preventDefault();
-                    if($scope.type === 'packaged_app') {
-                        Apps.launch($scope.id)
+
+                    if($scope.app.type === 'packaged_app') {
+                        Apps.launch($scope.app.id)
                             .then(function(){
-                                $log.debug("launched app id %s", $scope.id);
+                                $log.debug("launched app id %s", $scope.app.id);
                             });
                     } else {
-                        Apps.navigate($scope.url)
-                            .then(function(){
-                                $log.debug("launched app id %s", $scope.id);
-                            });
+                        url = Apps.appUrl($scope.app);
+                        if(url) {
+                            Apps.navigate(url)
+                                .then(function(){
+                                    $log.debug("opened app id %s", $scope.app.id);
+                                });
+                        } else {
+                            Apps.launch($scope.app.id)
+                                .then(function(){
+                                    $log.debug("launched app id %s", $scope.app.id);
+                                });
+                        }
                     }
                 });
             }
@@ -80,18 +89,21 @@ directives.directive('chromePinned', ['$log', 'Apps', function($log, Apps){
         restrict: 'A',
 
         scope: {
-            id: '=chromePinned',
-            url: '=href'
+            app: '=chromePinned'
         },
 
         link: function($scope, $element, $attrs) {
-            if($scope.id){
+            if($scope.app){
                 $element.bind('click', function(e){
+                    var url = Apps.appUrl($scope.app);
+
                     e.preventDefault();
-                    Apps.pinned($scope.url)
-                        .then(function(tab){
-                            $log.debug("Opened app id %s in pinned tab #%d", $scope.id, tab.id);
-                        });
+                    if(url) {
+                        Apps.pinned(url)
+                            .then(function(tab){
+                                $log.debug("Opened app id %s in pinned tab #%d", $scope.app.id, tab.id);
+                            });
+                    }
                 });
             }
         }
@@ -104,18 +116,21 @@ directives.directive('chromeNewTab', ['$log', 'Apps', function($log, Apps){
         restrict: 'A',
 
         scope: {
-            id: '=chromeNewTab',
-            url: '=href'
+            app: '=chromeNewTab'
         },
 
         link: function($scope, $element, $attrs) {
-            if($scope.id){
+            if($scope.app){
                 $element.bind('click', function(e){
+                    var url = Apps.appUrl($scope.app);
+
                     e.preventDefault();
-                    Apps.tab($scope.url)
-                        .then(function(tab){
-                            $log.debug("Opened app id %s in tab #%d", $scope.id, tab.id);
-                        });
+                    if(url) {
+                        Apps.tab(url)
+                            .then(function(tab){
+                                $log.debug("Opened app id %s in tab #%d", $scope.app.id, tab.id);
+                            });
+                    }
                 });
             }
         }
@@ -128,18 +143,21 @@ directives.directive('chromeNewWindow', ['$log', 'Apps', function($log, Apps){
         restrict: 'A',
 
         scope: {
-            id: '=chromeNewWindow',
-            url: '=href'
+            app: '=chromeNewWindow'
         },
 
         link: function($scope, $element, $attrs) {
-            if($scope.id){
+            if($scope.app){
                 $element.bind('click', function(e){
+                    var url = Apps.appUrl($scope.app);
+
                     e.preventDefault();
-                    Apps.newWindow($scope.url)
-                        .then(function(win){
-                            $log.debug("Opened app id %s in window #%d", $scope.id, win.id);
-                        });
+                    if(url) {
+                        Apps.newWindow(url)
+                            .then(function(win){
+                                $log.debug("Opened app id %s in window #%d", $scope.app.id, win.id);
+                            });
+                    }
                 });
             }
         }
@@ -152,18 +170,19 @@ directives.directive('chromeOptions', ['$log', 'Apps', function($log, Apps){
         restrict: 'A',
 
         scope: {
-            id: '=chromeOptions',
-            url: '=href'
+            app: '=chromeOptions'
         },
 
         link: function($scope, $element, $attrs) {
-            if($scope.id){
+            if($scope.app){
                 $element.bind('click', function(e){
                     e.preventDefault();
-                    Apps.tab($scope.url)
-                        .then(function(tab){
-                            $log.debug("Opened opens for app id %s in tab #%d", $scope.id, tab.id);
-                        });
+                    if($scope.app.optionsUrl) {
+                        Apps.tab($scope.app.optionsUrl)
+                            .then(function(tab){
+                                $log.debug("Opened options for app id %s in tab #%d", $scope.app.id, tab.id);
+                            });
+                    }
                 });
             }
         }

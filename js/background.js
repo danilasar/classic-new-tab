@@ -104,7 +104,26 @@ function getVisibleTileKeys(callback) {
                     }
                 });
 
-                callback(tileKeys);
+                chrome.bookmarks.getTree(function(results) {
+                    function collectBookmarkUrls(items) {
+                        (items || []).forEach(function(item) {
+                            var key;
+
+                            if(item.url) {
+                                key = getPreviewKey(item.url);
+                                if(key) {
+                                    tileKeys[key] = true;
+                                }
+                                return;
+                            }
+
+                            collectBookmarkUrls(item.children);
+                        });
+                    }
+
+                    collectBookmarkUrls(results);
+                    callback(tileKeys);
+                });
             });
         });
 }

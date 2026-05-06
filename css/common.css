@@ -81,20 +81,30 @@ body {
 
 .app-actions {
     display: none;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    background-color: #ddd;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: rgba(245,245,245,0.96);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.14);
     position: absolute;
-    bottom: 0;
-    margin-left: 5px;
-    margin-right: 5px;
-    padding-top: 4px;
-    padding-bottom: 3px;
-    width: 100%;
+    right: 14px;
+    top: 8px;
+    padding: 4px;
+    z-index: 4;
 }
 
 .app-actions a {
-    padding: 3px;
+    border-radius: 3px;
+    display: inline-block;
+    padding: 4px;
+}
+
+.app-actions a:hover {
+    background-color: #fff;
+    color: #333;
+}
+
+.app-menu-button {
+    cursor: default;
 }
 
 div[app] {
@@ -121,6 +131,194 @@ div[app]:hover .app-actions {
     font-size: 1.5em;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.app-empty-state {
+    color: #777;
+    font-size: 13px;
+    margin: 40px auto 0 auto;
+    max-width: 420px;
+    text-align: center;
+}
+
+.bookmark-toolbar {
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    gap: 8px;
+    margin: 0 7px 18px 7px;
+}
+
+.bookmark-nav-button {
+    background-color: #f3f3f3;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    color: #777;
+    cursor: pointer;
+    flex: 0 0 auto;
+    height: 28px;
+    line-height: 26px;
+    padding: 0;
+    text-align: center;
+    width: 28px;
+}
+
+.bookmark-nav-button:hover {
+    background-color: #e9e9e9;
+    border-color: #999;
+    color: #555;
+}
+
+.bookmark-nav-button:disabled {
+    cursor: default;
+    opacity: 0.38;
+}
+
+.bookmark-breadcrumbs {
+    color: #999;
+    flex: 1 1 auto;
+    font-size: 13px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bookmark-breadcrumbs a {
+    color: #777;
+    text-decoration: none;
+}
+
+.bookmark-breadcrumbs a:hover {
+    color: #333;
+    text-decoration: underline;
+}
+
+.bookmark-breadcrumbs a.active {
+    color: #555;
+    cursor: default;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.bookmark-breadcrumbs a:before {
+    color: #aaa;
+    content: "/";
+    margin: 0 6px;
+}
+
+.bookmark-breadcrumbs a:first-child:before {
+    content: "";
+    margin: 0;
+}
+
+.bookmark-toolbar-spacer {
+    flex: 1 1 auto;
+}
+
+.bookmark-toolbar-button {
+    background-color: #f3f3f3;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    color: #777;
+    cursor: pointer;
+    flex: 0 0 auto;
+    font-size: 12px;
+    height: 28px;
+    padding: 0 8px;
+}
+
+.bookmark-toolbar-button i {
+    margin-right: 5px;
+}
+
+.bookmark-toolbar-button:hover {
+    background-color: #e9e9e9;
+    border-color: #999;
+    color: #555;
+}
+
+.bookmarks-page-shell {
+    position: relative;
+}
+
+.bookmarks-grid {
+    min-height: 216px;
+}
+
+.bookmark-page-side {
+    background-color: rgba(243,243,243,0.96);
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    color: #777;
+    cursor: pointer;
+    font-size: 22px;
+    height: 34px;
+    line-height: 30px;
+    margin-top: -32px;
+    padding: 0;
+    position: absolute;
+    top: 50%;
+    width: 34px;
+    z-index: 3;
+}
+
+.bookmark-page-side-left {
+    left: -38px;
+}
+
+.bookmark-page-side-right {
+    right: -38px;
+}
+
+.bookmark-page-side:hover:not(:disabled) {
+    background-color: #e9e9e9;
+    border-color: #999;
+    color: #555;
+}
+
+.bookmark-page-side:disabled {
+    cursor: default;
+    opacity: 0.38;
+}
+
+.bookmark-pagination {
+    clear: both;
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.bookmark-pagination button {
+    background-color: #f3f3f3;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    color: #777;
+    cursor: pointer;
+    font-size: 12px;
+    height: 24px;
+    min-width: 24px;
+    padding: 0 7px;
+}
+
+.bookmark-pagination button:hover:not(:disabled),
+.bookmark-pagination button.active {
+    background-color: #e9e9e9;
+    border-color: #999;
+    color: #555;
+}
+
+.bookmark-pagination button.active {
+    font-weight: bold;
+}
+
+.bookmark-pagination button.bookmark-page-separator {
+    background-color: transparent;
+    border-color: transparent;
+    cursor: default;
+    min-width: 18px;
+    padding: 0 2px;
 }
 
 .site-preview {
@@ -191,10 +389,27 @@ div[app]:hover .app-actions {
     border-shadow-color: #666;
 }
 
+.bookmark-folder-icon {
+    color: #777;
+    display: block;
+    font-size: 28px;
+    margin: 0 auto 12px auto;
+}
+
+.bookmark-folder:hover .bookmark-folder-icon {
+    color: #555;
+}
+
+.bookmark-item {
+    position: relative;
+}
+
 .site-drag,
 .site-pin,
 .site-edit,
-.site-dismiss {
+.site-dismiss,
+.bookmark-edit,
+.bookmark-delete {
     background-color: rgba(240,240,240,0.95);
     border: 1px solid #ccc;
     color: #888;
@@ -204,7 +419,9 @@ div[app]:hover .app-actions {
 .site-drag,
 .site-pin,
 .site-edit,
-.site-dismiss {
+.site-dismiss,
+.bookmark-edit,
+.bookmark-delete {
     border-radius: 50%;
     display: none;
     height: 24px;
@@ -235,10 +452,20 @@ div[app]:hover .app-actions {
     right: 24px;
 }
 
+.bookmark-edit {
+    right: 52px;
+}
+
+.bookmark-delete {
+    right: 24px;
+}
+
 .site-drag:hover,
 .site-pin:hover,
 .site-edit:hover,
-.site-dismiss:hover {
+.site-dismiss:hover,
+.bookmark-edit:hover,
+.bookmark-delete:hover {
     background-color: #fff;
     border-color: #999;
     color: #555;
@@ -261,7 +488,9 @@ div[app]:hover .app-actions {
 .top-site:hover .site-drag,
 .top-site:hover .site-pin,
 .top-site:hover .site-edit,
-.top-site:hover .site-dismiss {
+.top-site:hover .site-dismiss,
+.bookmark-item:hover .bookmark-edit,
+.bookmark-item:hover .bookmark-delete {
     display: block;
 }
 

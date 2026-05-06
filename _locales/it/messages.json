@@ -297,5 +297,177 @@
   "settingsCycleScreensDescription": {
     "message": "После последней вкладки переходить к первой при переключении стрелками или колесом мыши.",
     "description": "Checkbox description for cyclic screen switching"
+  },
+  "appsEmptyState": {
+    "message": "Chrome не отдал расширению приложения или установленные веб-приложения.",
+    "description": "Empty state text for the apps screen"
+  },
+  "bookmarksTab": {
+    "message": "Bookmarks",
+    "description": "Bookmarks tab label"
+  },
+  "settingsScreenBookmarksDescription": {
+    "message": "Bookmarks from the bookmarks bar.",
+    "description": "Settings description for the bookmarks screen"
+  },
+  "bookmarksEmptyState": {
+    "message": "No bookmarks found on the bookmarks bar.",
+    "description": "Empty bookmarks screen text"
+  },
+  "bookmarksBack": {
+    "message": "Back",
+    "description": "Tooltip for navigating to the parent bookmarks folder"
+  },
+  "bookmarksCloseFolder": {
+    "message": "Close folder",
+    "description": "Tooltip for returning from a bookmarks folder to the root bookmarks view"
+  },
+  "bookmarksFolder": {
+    "message": "Folder",
+    "description": "Label for a bookmarks folder tile"
+  },
+  "bookmarksUntitledFolder": {
+    "message": "Untitled folder",
+    "description": "Fallback title for an unnamed bookmarks folder"
+  },
+  "bookmarksPreviousPage": {
+    "message": "Previous page",
+    "description": "Tooltip for the previous bookmarks page button"
+  },
+  "bookmarksNextPage": {
+    "message": "Next page",
+    "description": "Tooltip for the next bookmarks page button"
+  },
+  "addBookmark": {
+    "message": "Add bookmark",
+    "description": "Button text for adding a bookmark"
+  },
+  "addBookmarkFolder": {
+    "message": "Add folder",
+    "description": "Button text for adding a bookmarks folder"
+  },
+  "editBookmark": {
+    "message": "Edit bookmark",
+    "description": "Tooltip and modal title for editing a bookmark"
+  },
+  "editBookmarkFolder": {
+    "message": "Edit folder",
+    "description": "Tooltip and modal title for editing a bookmarks folder"
+  },
+  "deleteBookmark": {
+    "message": "Delete bookmark",
+    "description": "Tooltip for deleting a bookmark"
+  },
+  "deleteBookmarkFolder": {
+    "message": "Delete folder",
+    "description": "Tooltip for deleting a bookmarks folder"
+  },
+  "deleteBookmarkConfirm": {
+    "message": "Delete this bookmark?",
+    "description": "Confirmation text before deleting a bookmark"
+  },
+  "deleteBookmarkFolderConfirm": {
+    "message": "Delete this folder and all bookmarks inside it?",
+    "description": "Confirmation text before deleting a bookmarks folder"
+  },
+  "options_chkSync": {
+    "message": "Sync Options",
+    "description": "Labels the checkbox indicating options will be saved via Google Chrome Sync"
+  },
+  "options_chkShowWelcome": {
+    "message": "Show Welcome on upgrade",
+    "description": "Labels the checkbox indicating the Welcome Page will be displayed when the extension is upgraded"
+  },
+  "openAppTitle": {
+    "message": "Open $APP_NAME$",
+    "description": "Tooltip for opening an app",
+    "placeholders": {
+      "app_name": {
+        "content": "$1",
+        "example": "YouTube"
+      }
+    }
+  },
+  "openAppPinnedTitle": {
+    "message": "Open $APP_NAME$ in a pinned tab",
+    "description": "Tooltip for opening an app in a pinned tab",
+    "placeholders": {
+      "app_name": {
+        "content": "$1",
+        "example": "YouTube"
+      }
+    }
+  },
+  "openAppNewTabTitle": {
+    "message": "Open $APP_NAME$ in a new tab",
+    "description": "Tooltip for opening an app in a new tab",
+    "placeholders": {
+      "app_name": {
+        "content": "$1",
+        "example": "YouTube"
+      }
+    }
+  },
+  "openAppNewWindowTitle": {
+    "message": "Open $APP_NAME$ in a new window",
+    "description": "Tooltip for opening an app in a new window",
+    "placeholders": {
+      "app_name": {
+        "content": "$1",
+        "example": "YouTube"
+      }
+    }
+  },
+  "openAppOptionsTitle": {
+    "message": "Open options for $APP_NAME$",
+    "description": "Tooltip for opening an app options page",
+    "placeholders": {
+      "app_name": {
+        "content": "$1",
+        "example": "YouTube"
+      }
+    }
+  },
+  "uninstallAppTitle": {
+    "message": "Uninstall $APP_NAME$",
+    "description": "Tooltip for uninstalling an app",
+    "placeholders": {
+      "app_name": {
+        "content": "$1",
+        "example": "YouTube"
+      }
+    }
+  },
+  "bookmarksRootFallback": {
+    "message": "Bookmarks",
+    "description": "Fallback title for a root bookmarks folder"
+  },
+  "bookmarksManageRoots": {
+    "message": "Bookmark folders",
+    "description": "Tooltip for the root bookmarks folder menu"
+  },
+  "addBookmarkRootFolder": {
+    "message": "Add root folder",
+    "description": "Button text for adding a root bookmarks folder"
+  },
+  "deleteBookmarkRootFolder": {
+    "message": "Delete current root folder",
+    "description": "Button text for deleting the current root bookmarks folder"
+  },
+  "deleteBookmarkRootConfirm": {
+    "message": "Delete this root bookmark folder and all bookmarks inside it?",
+    "description": "Confirmation text before deleting a root bookmarks folder"
+  },
+  "bookmarkOperationFailed": {
+    "message": "Chrome did not allow this bookmark operation.",
+    "description": "Error shown when Chrome rejects a bookmark operation"
+  },
+  "bookmarksRootOverview": {
+    "message": "Overview",
+    "description": "Button text for showing all root bookmarks folders"
+  },
+  "bookmarksDefaultRoot": {
+    "message": "Bookmarks bar",
+    "description": "Tooltip for returning to the default bookmarks bar folder"
   }
 }

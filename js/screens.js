@@ -10,6 +10,13 @@
             defaultEnabled: true
         },
         {
+            id: 'bookmarks',
+            titleKey: 'bookmarksTab',
+            descriptionKey: 'settingsScreenBookmarksDescription',
+            templateUrl: 'js/partials/screen-bookmarks.html',
+            defaultEnabled: true
+        },
+        {
             id: 'top',
             titleKey: 'mostVisited',
             descriptionKey: 'settingsScreenTopDescription',

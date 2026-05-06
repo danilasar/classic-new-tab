@@ -1,4 +1,5 @@
 <div class="container app-container">
     <chrome-app ng-repeat="app in apps" app="app"></chrome-app>
+    <p class="app-empty-state" ng-if="apps.length === 0">{{ msg('appsEmptyState') }}</p>
     <span class="clear"></span>
 </div>

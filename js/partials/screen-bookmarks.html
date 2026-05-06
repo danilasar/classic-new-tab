@@ -1,0 +1,159 @@
+<div class="container bookmarks-container">
+    <div class="bookmark-toolbar">
+        <button class="bookmark-nav-button"
+                ng-click="showBookmarkParent($event)"
+                ng-disabled="bookmarkPath.length < 2 && !isBookmarkRootOverview()"
+                title="{{ msg('bookmarksBack') }}"
+                type="button">
+            <i class="fa fa-arrow-left"></i>
+        </button>
+        <div class="bookmark-breadcrumbs">
+            <a href=""
+               ng-repeat="pathItem in bookmarkPath track by pathItem.id"
+               ng-click="openBookmarkPath(pathItem, $event)"
+               ng-class="{'active': pathItem.id === bookmarkFolderId}">
+                {{ pathItem.title || msg('bookmarksRootFallback') }}
+            </a>
+        </div>
+        <div class="bookmark-toolbar-spacer"></div>
+        <button class="bookmark-nav-button"
+                ng-click="showDefaultBookmarkRoot($event)"
+                ng-disabled="!bookmarkDefaultRootId || (!isBookmarkRootOverview() && bookmarkPath.length < 2)"
+                title="{{ msg('bookmarksDefaultRoot') }}"
+                type="button">
+            <i class="fa fa-times"></i>
+        </button>
+        <button class="bookmark-toolbar-button"
+                ng-click="openAddBookmark($event)"
+                ng-hide="isBookmarkRootOverview()"
+                title="{{ msg('addBookmark') }}"
+                type="button">
+            <i class="fa fa-bookmark"></i>
+            <span>{{ msg('addBookmark') }}</span>
+        </button>
+        <button class="bookmark-toolbar-button"
+                ng-click="openAddBookmarkFolder($event)"
+                title="{{ isBookmarkRootOverview() ? msg('addBookmarkRootFolder') : msg('addBookmarkFolder') }}"
+                type="button">
+            <i class="fa fa-folder"></i>
+            <span>{{ isBookmarkRootOverview() ? msg('addBookmarkRootFolder') : msg('addBookmarkFolder') }}</span>
+        </button>
+    </div>
+
+    <div class="bookmarks-page-shell">
+        <button class="bookmark-page-side bookmark-page-side-left"
+                ng-click="showPreviousBookmarkPage($event)"
+                ng-disabled="!canShowPreviousBookmarkPage()"
+                ng-show="bookmarkPageCount > 1"
+                title="{{ msg('bookmarksPreviousPage') }}"
+                type="button">
+            <i class="fa fa-angle-left"></i>
+        </button>
+
+        <div class="bookmarks-grid">
+            <div ng-repeat="bookmark in bookmarks track by bookmark.id"
+                 class="app-icon bookmark-item">
+                <a ng-if="bookmark.url"
+                   ng-href="{{ bookmark.url }}"
+                   ng-title="{{ bookmark.title || bookmark.url }}"
+                   target="_self"
+                   class="app-icon-container">
+                    <div class="site-preview">
+                        <img class="site-preview-image"
+                             ng-if="bookmark.preview"
+                             ng-src="{{ bookmark.preview }}"
+                             alt="" />
+                        <div class="site-preview-fallback">
+                            <img class="site-preview-icon"
+                                 ng-src="chrome://favicon/{{ bookmark.url }}"
+                                 alt="" />
+                            <span class="site-preview-title">
+                                {{ bookmark.title || bookmark.url }}
+                            </span>
+                            <span class="site-preview-url">
+                                {{ bookmark.url | domain }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <span class="app-desc">
+                        {{ bookmark.title || bookmark.url }}
+                    </span>
+                </a>
+                <button class="bookmark-edit"
+                        ng-if="bookmark.url"
+                        ng-click="openEditBookmark(bookmark, $event)"
+                        title="{{ msg('editBookmark') }}"
+                        type="button">
+                    <i class="fa fa-pencil"></i>
+                </button>
+                <button class="bookmark-delete"
+                        ng-if="bookmark.url"
+                        ng-click="removeBookmark(bookmark, $event)"
+                        title="{{ msg('deleteBookmark') }}"
+                        type="button">
+                    <i class="fa fa-times"></i>
+                </button>
+                <a ng-if="!bookmark.url"
+                   href=""
+                   ng-click="openBookmarkFolder(bookmark, $event)"
+                   ng-title="{{ bookmark.title || msg('bookmarksUntitledFolder') }}"
+                   class="app-icon-container bookmark-folder">
+                    <div class="site-preview bookmark-folder-preview">
+                        <div class="site-preview-fallback">
+                            <i class="fa fa-folder bookmark-folder-icon"></i>
+                            <span class="site-preview-title">
+                                {{ bookmark.title || msg('bookmarksUntitledFolder') }}
+                            </span>
+                            <span class="site-preview-url">
+                                {{ msg('bookmarksFolder') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <span class="app-desc">
+                        {{ bookmark.title || msg('bookmarksUntitledFolder') }}
+                    </span>
+                </a>
+                <button class="bookmark-edit"
+                        ng-if="!bookmark.url"
+                        ng-click="openEditBookmark(bookmark, $event)"
+                        title="{{ msg('editBookmarkFolder') }}"
+                        type="button">
+                    <i class="fa fa-pencil"></i>
+                </button>
+                <button class="bookmark-delete"
+                        ng-if="!bookmark.url"
+                        ng-click="removeBookmark(bookmark, $event)"
+                        title="{{ msg('deleteBookmarkFolder') }}"
+                        type="button">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <p class="app-empty-state" ng-if="allBookmarks.length === 0">
+                {{ msg('bookmarksEmptyState') }}
+            </p>
+            <span class="clear"></span>
+        </div>
+
+        <button class="bookmark-page-side bookmark-page-side-right"
+                ng-click="showNextBookmarkPage($event)"
+                ng-disabled="!canShowNextBookmarkPage()"
+                ng-show="bookmarkPageCount > 1"
+                title="{{ msg('bookmarksNextPage') }}"
+                type="button">
+            <i class="fa fa-angle-right"></i>
+        </button>
+    </div>
+
+    <div class="bookmark-pagination" ng-show="bookmarkPageCount > 1">
+        <button ng-repeat="page in bookmarkPages track by $index"
+                ng-click="setBookmarkPage(page, $event)"
+                ng-class="{'active': page.index === bookmarkPageIndex,
+                           'bookmark-page-separator': page.separator}"
+                ng-disabled="page.separator"
+                type="button">
+            {{ page.label }}
+        </button>
+    </div>
+</div>
