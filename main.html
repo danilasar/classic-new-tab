@@ -28,24 +28,11 @@
         <div class="container top-sites-container" ng-show="tabs.show_top">
             <div class="top-sites-tools">
                 <button class="top-site-add-toggle"
-                        ng-click="showAddTopSite=!showAddTopSite"
+                        ng-click="openAddTopSite()"
                         title="Add site"
                         type="button">
                     <i class="fa fa-plus"></i>
                 </button>
-                <form class="top-site-add-form"
-                      ng-show="showAddTopSite"
-                      ng-submit="addTopSite($event)">
-                    <input ng-model="newTopSite.title"
-                           placeholder="Title"
-                           type="text" />
-                    <input ng-model="newTopSite.url"
-                           placeholder="URL"
-                           type="text" />
-                    <button title="Add site" type="submit">
-                        <i class="fa fa-check"></i>
-                    </button>
-                </form>
             </div>
             <div ng-repeat="site in top" class="app-icon top-site">
                 <a ng-href="{{ site.url }}" ng-title="{{ site.title }}"
@@ -82,6 +69,31 @@
             </div>
             <span class="clear"></span>
         </div>
+    </div>
+
+    <div class="modal-overlay" ng-show="showAddTopSite" ng-click="closeAddTopSite()">
+        <form class="top-site-modal"
+              ng-click="$event.stopPropagation()"
+              ng-submit="addTopSite($event)">
+            <button class="top-site-modal-close"
+                    ng-click="closeAddTopSite()"
+                    title="Close"
+                    type="button">
+                <i class="fa fa-times"></i>
+            </button>
+            <h2>Add site</h2>
+            <label>
+                Title
+                <input ng-model="newTopSite.title" type="text" />
+            </label>
+            <label>
+                URL
+                <input ng-model="newTopSite.url"
+                       placeholder="https://example.com"
+                       type="text" />
+            </label>
+            <button class="top-site-modal-submit" type="submit">Add</button>
+        </form>
     </div>
 
     <footer>

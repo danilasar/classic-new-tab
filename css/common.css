@@ -195,7 +195,6 @@ div[app]:hover .app-actions {
 }
 
 .top-site-add-toggle,
-.top-site-add-form button,
 .site-pin,
 .site-dismiss {
     background-color: rgba(240,240,240,0.95);
@@ -204,28 +203,10 @@ div[app]:hover .app-actions {
     cursor: pointer;
 }
 
-.top-site-add-toggle,
-.top-site-add-form button {
+.top-site-add-toggle {
     border-radius: 4px;
     height: 28px;
     width: 28px;
-}
-
-.top-site-add-form {
-    display: inline-block;
-    margin-left: 6px;
-}
-
-.top-site-add-form input {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    color: #666;
-    font-size: 12px;
-    height: 28px;
-    margin-right: 4px;
-    padding: 4px 6px;
-    width: 160px;
 }
 
 .site-pin,
@@ -252,7 +233,6 @@ div[app]:hover .app-actions {
 }
 
 .top-site-add-toggle:hover,
-.top-site-add-form button:hover,
 .site-pin:hover,
 .site-dismiss:hover {
     background-color: #fff;
@@ -263,6 +243,91 @@ div[app]:hover .app-actions {
 .top-site:hover .site-pin,
 .top-site:hover .site-dismiss {
     display: block;
+}
+
+.modal-overlay {
+    background-color: rgba(0,0,0,0.28);
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 20;
+}
+
+.top-site-modal {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.22);
+    box-sizing: border-box;
+    color: #666;
+    left: 50%;
+    padding: 18px;
+    position: absolute;
+    top: 42%;
+    transform: translate(-50%, -50%);
+    width: 340px;
+}
+
+.top-site-modal h2 {
+    color: #555;
+    font-size: 16px;
+    margin: 0 32px 16px 0;
+}
+
+.top-site-modal label {
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.top-site-modal input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    color: #555;
+    display: block;
+    font-size: 13px;
+    height: 32px;
+    margin-top: 5px;
+    padding: 6px 8px;
+    width: 100%;
+}
+
+.top-site-modal-close {
+    background-color: transparent;
+    border: 0;
+    color: #999;
+    cursor: pointer;
+    height: 28px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 28px;
+}
+
+.top-site-modal-close:hover {
+    color: #555;
+}
+
+.top-site-modal-submit {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: #666;
+    cursor: pointer;
+    font-size: 13px;
+    height: 32px;
+    margin-top: 4px;
+    width: 100%;
+}
+
+.top-site-modal-submit:hover {
+    background-color: #fff;
+    border-color: #999;
+    color: #555;
 }
 
 .container {

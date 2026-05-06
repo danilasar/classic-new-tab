@@ -218,6 +218,16 @@ controllers.controller('MainController',
         $scope.hideTopSite(site, event);
     };
 
+    $scope.openAddTopSite = function() {
+        $scope.newTopSite = {};
+        $scope.showAddTopSite = true;
+    };
+
+    $scope.closeAddTopSite = function() {
+        $scope.newTopSite = {};
+        $scope.showAddTopSite = false;
+    };
+
     $scope.addTopSite = function(event) {
         var url;
         var title;
@@ -241,8 +251,7 @@ controllers.controller('MainController',
             custom: true
         });
 
-        $scope.newTopSite = {};
-        $scope.showAddTopSite = false;
+        $scope.closeAddTopSite();
         savePinnedTopSites();
         loadTopSites();
     };
