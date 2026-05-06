@@ -10,6 +10,8 @@ var CAPTURE_DELAY = 1500;
 var MAX_LOADING_RETRIES = 12;
 var captureTimers = {};
 var loadingRetries = {};
+var navigationChains = {};
+var pendingRedirectTargets = {};
 
 function canonicalUrl(url) {
     if(!/^https?:\/\//.test(url || '')) {
@@ -23,6 +25,26 @@ function canonicalUrl(url) {
     return parser.href;
 }
 
+function parseHttpUrl(url) {
+    var key = canonicalUrl(url);
+    var parser;
+
+    if(!key) {
+        return null;
+    }
+
+    parser = document.createElement('a');
+    parser.href = key;
+
+    return {
+        key: key,
+        protocol: parser.protocol,
+        host: parser.hostname.replace(/^www\./, ''),
+        path: parser.pathname || '/',
+        search: parser.search || ''
+    };
+}
+
 function shouldCaptureTab(tab) {
     return tab && tab.active && tab.status === 'complete' && canonicalUrl(tab.url);
 }
@@ -33,6 +55,23 @@ function shouldWaitForTab(tab) {
 
 function getPreviewKey(url) {
     return canonicalUrl(url);
+}
+
+function isSameUrlIgnoringProtocol(tileUrl, currentUrl) {
+    var tile = parseHttpUrl(tileUrl);
+    var current = parseHttpUrl(currentUrl);
+
+    if(!tile || !current) {
+        return false;
+    }
+
+    if(tile.key === current.key) {
+        return true;
+    }
+
+    return tile.host === current.host &&
+        tile.path === current.path &&
+        tile.search === current.search;
 }
 
 function getVisibleTileKeys(callback) {
@@ -70,16 +109,31 @@ function getVisibleTileKeys(callback) {
         });
 }
 
-function isVisibleTile(url, callback) {
-    var key = getPreviewKey(url);
+function getNavigationChain(tabId, url) {
+    var chain = navigationChains[tabId] || [];
+    var currentKey = getPreviewKey(url);
 
-    if(!key) {
-        callback(false);
+    if(currentKey && chain.indexOf(currentKey) === -1) {
+        chain = chain.concat([currentKey]);
+    }
+
+    return chain;
+}
+
+function getMatchingTileKeys(tabId, url, callback) {
+    var chain = getNavigationChain(tabId, url);
+
+    if(!getPreviewKey(url)) {
+        callback([]);
         return;
     }
 
     getVisibleTileKeys(function(tileKeys) {
-        callback(!!tileKeys[key]);
+        callback(Object.keys(tileKeys).filter(function(tileKey) {
+            return chain.some(function(chainUrl) {
+                return isSameUrlIgnoringProtocol(tileKey, chainUrl);
+            });
+        }));
     });
 }
 
@@ -119,24 +173,24 @@ function resizePreview(dataUrl, callback) {
     image.src = dataUrl;
 }
 
-function savePreview(url, dataUrl) {
-    var key = getPreviewKey(url);
-
-    if(!key) {
+function savePreview(tileKeys, dataUrl) {
+    if(!tileKeys.length) {
         return;
     }
 
     chrome.storage.local.get([TOP_SITE_PREVIEWS_KEY], function(result) {
         var previews = result[TOP_SITE_PREVIEWS_KEY] || {};
 
-        previews[key] = {
-            image: dataUrl,
-            updatedAt: Date.now()
-        };
+        tileKeys.forEach(function(tileKey) {
+            previews[tileKey] = {
+                image: dataUrl,
+                updatedAt: Date.now()
+            };
+        });
 
-        getVisibleTileKeys(function(tileKeys) {
+        getVisibleTileKeys(function(visibleTileKeys) {
             Object.keys(previews).forEach(function(previewKey) {
-                if(!tileKeys[previewKey]) {
+                if(!visibleTileKeys[previewKey]) {
                     delete previews[previewKey];
                 }
             });
@@ -153,8 +207,8 @@ function captureTab(tab) {
         return;
     }
 
-    isVisibleTile(tab.url, function(found) {
-        if(!found) {
+    getMatchingTileKeys(tab.id, tab.url, function(tileKeys) {
+        if(!tileKeys.length) {
             return;
         }
 
@@ -167,7 +221,7 @@ function captureTab(tab) {
             }
 
             resizePreview(dataUrl, function(previewDataUrl) {
-                savePreview(tab.url, previewDataUrl);
+                savePreview(tileKeys, previewDataUrl);
             });
         });
     });
@@ -211,4 +265,80 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
     scheduleCapture(activeInfo.tabId);
+});
+
+chrome.tabs.onRemoved.addListener(function(tabId) {
+    clearTimeout(captureTimers[tabId]);
+    delete captureTimers[tabId];
+    delete loadingRetries[tabId];
+    delete navigationChains[tabId];
+    delete pendingRedirectTargets[tabId];
+});
+
+chrome.webRequest.onBeforeRequest.addListener(function(details) {
+    var key = getPreviewKey(details.url);
+    var chain;
+
+    if(details.tabId < 0 || !key) {
+        return;
+    }
+
+    if(pendingRedirectTargets[details.tabId] === key) {
+        chain = navigationChains[details.tabId] || [];
+        if(chain.indexOf(key) === -1) {
+            chain.push(key);
+        }
+
+        navigationChains[details.tabId] = chain;
+        delete pendingRedirectTargets[details.tabId];
+    } else {
+        navigationChains[details.tabId] = [key];
+        delete pendingRedirectTargets[details.tabId];
+    }
+}, {
+    urls: ['http://*/*', 'https://*/*'],
+    types: ['main_frame']
+});
+
+chrome.webRequest.onBeforeRedirect.addListener(function(details) {
+    var fromKey = getPreviewKey(details.url);
+    var toKey = getPreviewKey(details.redirectUrl);
+    var chain = navigationChains[details.tabId] || [];
+
+    if(details.tabId < 0) {
+        return;
+    }
+
+    if(fromKey && chain.indexOf(fromKey) === -1) {
+        chain.push(fromKey);
+    }
+
+    if(toKey && chain.indexOf(toKey) === -1) {
+        chain.push(toKey);
+    }
+
+    navigationChains[details.tabId] = chain;
+    pendingRedirectTargets[details.tabId] = toKey;
+}, {
+    urls: ['http://*/*', 'https://*/*'],
+    types: ['main_frame']
+});
+
+chrome.webRequest.onCompleted.addListener(function(details) {
+    var key = getPreviewKey(details.url);
+    var chain = navigationChains[details.tabId] || [];
+
+    if(details.tabId < 0) {
+        return;
+    }
+
+    if(key && chain.indexOf(key) === -1) {
+        chain.push(key);
+        navigationChains[details.tabId] = chain;
+    }
+
+    delete pendingRedirectTargets[details.tabId];
+}, {
+    urls: ['http://*/*', 'https://*/*'],
+    types: ['main_frame']
 });

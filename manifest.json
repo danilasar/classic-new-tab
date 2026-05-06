@@ -12,6 +12,7 @@
     "storage",
     "topSites",
     "tabs",
+    "webRequest",
     "management",
     "bookmarks",
     "<all_urls>",
