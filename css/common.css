@@ -109,6 +109,10 @@ div[app]:hover .app-actions {
     position: relative;
 }
 
+.top-site[draggable="true"] {
+    cursor: move;
+}
+
 .app-desc {
     padding: 5px;
     display: block;
@@ -187,6 +191,7 @@ div[app]:hover .app-actions {
     border-shadow-color: #666;
 }
 
+.site-drag,
 .site-pin,
 .site-edit,
 .site-dismiss {
@@ -196,6 +201,7 @@ div[app]:hover .app-actions {
     cursor: pointer;
 }
 
+.site-drag,
 .site-pin,
 .site-edit,
 .site-dismiss {
@@ -212,6 +218,11 @@ div[app]:hover .app-actions {
     z-index: 3;
 }
 
+.site-drag {
+    left: 24px;
+    right: auto;
+}
+
 .site-pin {
     right: 80px;
 }
@@ -224,6 +235,7 @@ div[app]:hover .app-actions {
     right: 24px;
 }
 
+.site-drag:hover,
 .site-pin:hover,
 .site-edit:hover,
 .site-dismiss:hover {
@@ -232,6 +244,21 @@ div[app]:hover .app-actions {
     color: #555;
 }
 
+.top-site-dragging {
+    opacity: 0.45;
+}
+
+.top-site-drag-over .site-preview {
+    border-color: #777;
+    box-shadow: 0 0 0 2px rgba(80,80,80,0.18),
+                inset 0 0 1em rgba(0,0,0,0.12);
+}
+
+.top-site-dragging .site-preview {
+    border-style: dashed;
+}
+
+.top-site:hover .site-drag,
 .top-site:hover .site-pin,
 .top-site:hover .site-edit,
 .top-site:hover .site-dismiss {

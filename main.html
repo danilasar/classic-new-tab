@@ -26,9 +26,19 @@
         </div>
 
         <div class="container top-sites-container" ng-show="tabs.show_top">
-            <div ng-repeat="site in top" class="app-icon top-site">
+            <div ng-repeat="site in top track by site.url"
+                 class="app-icon top-site"
+                 ng-class="{'top-site-dragging': draggedTopSiteIndex === $index,
+                            'top-site-drag-over': dragOverTopSiteIndex === $index}"
+                 draggable="true"
+                 ont-dragstart="startTopSiteDrag(site, $index, $event)"
+                 ont-dragover="dragOverTopSite($index, $event)"
+                 ont-dragleave="leaveTopSiteDrag($index, $event)"
+                 ont-drop="dropTopSite($index, $event)"
+                 ont-dragend="endTopSiteDrag($event)">
                 <a ng-href="{{ site.url }}" ng-title="{{ site.title }}"
-                   target="_self" class="app-icon-container">
+                   target="_self" class="app-icon-container"
+                   ng-click="openTopSite($event)">
                     <div class="site-preview">
                         <img class="site-preview-image"
                              ng-if="site.preview"
@@ -45,6 +55,10 @@
 
                     <span class="app-desc">{{ site.title }}</span>
                 </a>
+                <span class="site-drag"
+                      title="{{ msg('moveTopSite') }}">
+                    <i class="fa fa-arrows"></i>
+                </span>
                 <button class="site-pin"
                         ng-click="pinTopSite(site, $event)"
                         ng-hide="site.pinned"

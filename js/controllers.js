@@ -7,12 +7,17 @@ controllers.controller('MainController',
     var show_top_key = 'old_ntp.show_top';
     var hidden_top_key = 'old_ntp.hidden_top_sites';
     var pinned_top_key = 'old_ntp.pinned_top_sites';
+    var top_site_order_key = 'old_ntp.top_site_order';
 
     $scope.tabs = {
         show_top: false
     };
     $scope.hiddenTopSites = [];
     $scope.pinnedTopSites = [];
+    $scope.topSiteOrder = [];
+    $scope.draggedTopSiteIndex = null;
+    $scope.dragOverTopSiteIndex = null;
+    $scope.suppressTopSiteClick = false;
     $scope.tileModal = {
         open: false
     };
@@ -118,6 +123,58 @@ controllers.controller('MainController',
         Apps.saveSetting(obj);
     }
 
+    function saveTopSiteOrder() {
+        var obj = {};
+
+        $scope.topSiteOrder = ($scope.top || []).map(function(site) {
+            return topSiteKey(site.url);
+        }).filter(function(url) {
+            return !!url;
+        });
+
+        obj[top_site_order_key] = $scope.topSiteOrder;
+        Apps.saveSetting(obj);
+    }
+
+    function applyTopSiteOrder(sites) {
+        var order = {};
+
+        ($scope.topSiteOrder || []).forEach(function(url, index) {
+            var key = topSiteKey(url);
+
+            if(key && order[key] === undefined) {
+                order[key] = index;
+            }
+        });
+
+        return sites.map(function(site, index) {
+            return {
+                site: site,
+                index: index,
+                order: order[topSiteKey(site.url)]
+            };
+        }).sort(function(left, right) {
+            var leftOrdered = left.order !== undefined;
+            var rightOrdered = right.order !== undefined;
+
+            if(leftOrdered && rightOrdered) {
+                return left.order - right.order;
+            }
+
+            if(leftOrdered) {
+                return -1;
+            }
+
+            if(rightOrdered) {
+                return 1;
+            }
+
+            return left.index - right.index;
+        }).map(function(item) {
+            return item.site;
+        });
+    }
+
     function loadTopSites() {
         return Apps.topSites().then(function (sites) {
             return Apps.topSitePreviews().then(function(previews) {
@@ -136,7 +193,7 @@ controllers.controller('MainController',
                         !usedUrls[key];
                 });
 
-                $scope.top = pinned.concat(visibleSites)
+                $scope.top = applyTopSiteOrder(pinned.concat(visibleSites))
                     .slice(0, 12)
                     .map(function(site) {
                         var preview = previews[topSiteKey(site.url)];
@@ -260,6 +317,83 @@ controllers.controller('MainController',
         $scope.hideTopSite(site, event);
     };
 
+    $scope.openTopSite = function(event) {
+        if($scope.suppressTopSiteClick && event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    };
+
+    $scope.startTopSiteDrag = function(site, index, event) {
+        if(!site || !site.url) {
+            return;
+        }
+
+        $scope.draggedTopSiteIndex = index;
+        $scope.dragOverTopSiteIndex = index;
+        $scope.suppressTopSiteClick = false;
+
+        if(event.dataTransfer) {
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', site.url);
+        }
+    };
+
+    $scope.dragOverTopSite = function(index, event) {
+        if($scope.draggedTopSiteIndex === null ||
+           $scope.draggedTopSiteIndex === undefined) {
+            return;
+        }
+
+        if(event) {
+            event.preventDefault();
+            if(event.dataTransfer) {
+                event.dataTransfer.dropEffect = 'move';
+            }
+        }
+
+        $scope.dragOverTopSiteIndex = index;
+    };
+
+    $scope.leaveTopSiteDrag = function(index) {
+        if($scope.dragOverTopSiteIndex === index) {
+            $scope.dragOverTopSiteIndex = null;
+        }
+    };
+
+    $scope.dropTopSite = function(index, event) {
+        var moved;
+        var fromIndex = $scope.draggedTopSiteIndex;
+
+        if(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        if(fromIndex === null || fromIndex === undefined ||
+           fromIndex === index || !$scope.top ||
+           !$scope.top[fromIndex] || !$scope.top[index]) {
+            $scope.endTopSiteDrag();
+            return;
+        }
+
+        moved = $scope.top[fromIndex];
+        $scope.top[fromIndex] = $scope.top[index];
+        $scope.top[index] = moved;
+        saveTopSiteOrder();
+        $scope.endTopSiteDrag();
+    };
+
+    $scope.endTopSiteDrag = function() {
+        $scope.draggedTopSiteIndex = null;
+        $scope.dragOverTopSiteIndex = null;
+        $scope.suppressTopSiteClick = true;
+
+        window.setTimeout(function() {
+            $scope.suppressTopSiteClick = false;
+        }, 250);
+    };
+
     function openTileModal(mode, site) {
         $scope.tileModal = {
             mode: mode,
@@ -344,13 +478,15 @@ controllers.controller('MainController',
     });
 
     // initial page setup
-    var querySettings = [show_top_key, hidden_top_key, pinned_top_key];
+    var querySettings = [show_top_key, hidden_top_key, pinned_top_key,
+                         top_site_order_key];
 
     Apps.getSetting(querySettings)
         .then(function(settings) {
             $scope.tabs.show_top = settings[show_top_key];
             $scope.hiddenTopSites = settings[hidden_top_key] || [];
             $scope.pinnedTopSites = settings[pinned_top_key] || [];
+            $scope.topSiteOrder = settings[top_site_order_key] || [];
         })
         .then(function(){
             loadApps()

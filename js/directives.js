@@ -2,6 +2,28 @@
 /*global chrome*/
 var directives = angular.module('newTab.directives', []);
 
+['dragstart', 'dragover', 'dragleave', 'drop', 'dragend'].forEach(function(eventName) {
+    var directiveName = 'ont' + eventName.charAt(0).toUpperCase() +
+        eventName.slice(1);
+
+    directives.directive(directiveName, ['$parse', function($parse) {
+        return {
+            restrict: 'A',
+            link: function($scope, $element, $attrs) {
+                var handler = $parse($attrs[directiveName]);
+
+                $element.bind(eventName, function(event) {
+                    $scope.$apply(function() {
+                        handler($scope, {
+                            $event: event
+                        });
+                    });
+                });
+            }
+        };
+    }]);
+});
+
 directives.directive('chromeApp', function(){
     return {
         // element only

@@ -273,5 +273,9 @@
   "desc": {
     "message": "A classic replacement for Chrome's new tab page with apps, bookmarks, most visited tiles, local thumbnails, and editable custom shortcuts.",
     "description": "Chrome Web Store description"
+  },
+  "moveTopSite": {
+    "message": "Drag to reorder",
+    "description": "Tooltip for dragging a most visited site tile"
   }
 }

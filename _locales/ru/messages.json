@@ -265,5 +265,9 @@
   "settingsDuplicateUrl": {
     "message": "Эта плитка уже есть в списке.",
     "description": "Duplicate URL status text"
+  },
+  "moveTopSite": {
+    "message": "Перетащить для изменения порядка",
+    "description": "Tooltip for dragging a most visited site tile"
   }
 }
