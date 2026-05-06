@@ -1,10 +1,11 @@
 {
   "extName": {
-    "message": "New Tab Redirect!",
+    "message": "Classic New Tab",
     "description": "Extension Name"
   },
   "desc": {
-    "message": "Legt eine benutzerdefinierte URL fest, die in neuen Tabs geladen wird.  Wählen Sie beliebte URLs aus den Chrome-Infoseiten, *Neuer Tab, Erweiterungen, Downloads oder Verlauf* aus oder geben Sie eine eigene URL an.  Sie können auch eine lokale Datei für Ihren benutzerdefinierten Tab verwenden und Ihre eigene \"Neuer Tab\"-Seite erstellen. Wenn Sie leeren Text speichern, ist Ihr neuer Tab \"about:blank\".\n\nDateien können mit file:\\\\, file:// oder file:/// beginnen.\n\nWichtig: Es sollen nur neue Tabs, nicht Ihre Startseite ersetzt werden.  Wenn Ihr Browser die \"Neuer Tab\"-Seite als Ihre Startseite lädt, kann das Probleme verursachen.\n\nBitte besuchen Sie die Website für Entwickler, um das Änderungsprotokoll oder Kontaktinformationen aufzurufen.\n\n*********\n Hinweis\n********* \nIch habe mich dazu entschieden, in der Beschreibung und nicht in den Kommentaren zu erklären, warum die Omnibar nicht hervorgehoben werden kann.  Google Chrome-Erweiterungen können zum Hervorheben momentan nicht mit der Omnibar interagieren, nachdem die neue Seite erstellt wurde.  Es gibt ein API in der Experimentierphase, das Werte abrufen und Nutzereingaben in der Omnibar erkennen soll. Es erlaubt Erweiterungen allerdings nicht, den Text hervorzuheben.  Ich habe die Version 1.0.1 von New Tab Redirect! in einer Reihe von Entwickler-Builds getestet und dabei festgestellt, dass der Mauszeiger nur selten am Ende der Omnibar platziert wird.  Diese Funktion wird allerdings von Chrome selbst gesteuert und kann nicht über die Erweiterung angepasst werden.  Sobald diese Funktion in Chrome verfügbar ist, werde ich sie implementieren.  Bis dahin kann die Omnibar über Strg+L schnell hervorgehoben werden.\n\nIn WIKI finden Sie weitere Problemlösungen und Tipps: https://github.com/jimschubert/NewTab-Redirect/wiki\n\nWenn Ihnen diese Erweiterung gefällt, können Sie hier spenden: http://pledgie.com/campaigns/15715\n\nRechtliche Hinweise:\n\nZwischen Google oder Google Chrome und meiner Person besteht keine Partnerschaft..\nGoogle Chrome ist eine eingetragene Marke von Google, Inc.\n\nDie \"Beliebten Seiten\" stammen von www.alexa.com/topsites.  Es besteht keine Partnerschaft zwischen Google, Facebook, Twitter, Yahoo, Wikipedia, Digg, Delicio.us, Slashdot, MySpace oder einer der anderen hier aufgeführten Seiten und meiner Person.  Sie sollen lediglich die Nutzererfahrung dieser Erweiterung verbessern.  Wenn Sie Ihren neuen Tab mit diesen oder anderen Seiten ersetzen, gilt immer noch die Vereinbarung zwischen Ihnen und der betreffenden Website bzw. dem entsprechenden Dienst."
+    "message": "Классическая замена новой вкладки Chrome с приложениями, закладками, часто посещаемыми сайтами, локальными миниатюрами и редактируемыми ссылками.",
+    "description": "Chrome Web Store description"
   },
   "options_anyQuestions": {
     "message": "Bei Fragen finden Sie in $WIKI$ Antworten und Tipps.",
@@ -57,7 +58,7 @@
     "placeholders": {
       "name": {
         "content": "$1",
-        "example": "New Tab Redirect!"
+        "example": "Classic New Tab"
       }
     }
   },
@@ -74,7 +75,7 @@
     "description": "Title displayed on github link"
   },
   "extDesc": {
-    "message": "Legt eine benutzerspezifische URL fest, die in neuen Tabs geladen wird.",
+    "message": "Заменяет новую вкладку Chrome классическим экраном с приложениями и часто посещаемыми сайтами.",
     "description": "Extension Description"
   },
   "btnCancel": {
@@ -103,7 +104,7 @@
     "placeholders": {
       "name": {
         "content": "$1",
-        "example": "New Tab Redirect!"
+        "example": "Classic New Tab"
       }
     }
   },
@@ -180,11 +181,11 @@
     "description": "Apps tab label"
   },
   "settingsTitle": {
-    "message": "Настройки Old New Tab",
+    "message": "Настройки Classic New Tab",
     "description": "Options page title"
   },
   "settingsHeading": {
-    "message": "Настройки Old New Tab",
+    "message": "Настройки Classic New Tab",
     "description": "Options page heading"
   },
   "settingsSubtitle": {

@@ -1,10 +1,11 @@
 {
   "extName": {
-    "message": "New Tab Redirect!",
+    "message": "Classic New Tab",
     "description": "Extension Name"
   },
   "desc": {
-    "message": "Yeni sekme açıldığında yüklenecek özel bir URL ayarlar. Chrome’un hakkında sayfasından, *Yeni Sekmeden, Uzantılardan, İndirilenlerden, Geçmişten*, bazı popüler URL’lerden seçim yapın veya kendiniz bir URL sağlayın. Özel sekmeniz yerel bir dosya da olabilir. Böylece kendi yeni sekme sayfanızı oluşturabilirsiniz. Boş metin kaydedilmesi yeni sekmenizin about:blank olmasına yol açar.\n\nDosyalar şu şekilde başlayabilir: file:\\\\, file:// ve file:///\n\nÖnemli: Bu işlev ana sayfanızı değiştirmek için değil, yalnızca yeni sekmeler içindir. Tarayıcınız Yeni Sekme sayfasını ana sayfa olarak yükleyecek şekilde ayarlandıysa, beklenmeyen sonuçlar oluşabilir.\n\nDeğişiklik günlüğü veya iletişim bilgileri için lütfen geliştiricinin aşağıda belirtilen site bağlantısını ziyaret edin.\n\n*********\n  Not\n********* \nÇok amaçlı adres çubuğunun vurgulama eksikliğini yorumlar yerine açıklama bölümünde anlatacağımı sanıyordum. Google Chrome uzantıları şu anda yeni sayfa oluşturulduktan sonra vurgulama amacıyla çok amaçlı adres çubuğuyla iletişim kurmak için kullanılabilecek bir erişime sahip değildir. Değerleri almak ve çok amaçlı adres çubuğunda kullanıcı girişini algılamak için deneysel bir API bulunmaktadır, ancak bu API, uzantıların metni vurgulamasına olanak sağlamamaktadır. New Tab Redirect! uzantısının 1.0.1 sürümünü çeşitli geliştirici derlemelerinde test ettim ve imlecin yalnızca ara sıra çok amaçlı adres çubuğunun sonunda bittiğini gördüm. Ancak, bu durum Chrome’un kendisi tarafından işlenmekte ve uzantı üzerinden değiştirilememektedir. Chrome bu işlevi sunar sunmaz, uygulayacağım. O zamana kadar çok amaçlı adres çubuğunu hızlı bir şekilde vurgulamak için CTLR+L tuşunu kullanın.\n\nDiğer sorunlar ve ipuçları için WIKI’ye bakmayı unutmayın: https://github.com/jimschubert/NewTab-Redirect/wiki\n\nBu uzantıyı sevdiyseniz ve bağışta bulunmak isterseniz şu adresten yapabilirsiniz: http://pledgie.com/campaigns/15715\n\nYasal Açıklamalar:\n\nGoogle veya Google Chrome ile ilişkim yoktur.\nGoogle Chrome Google, Inc.’nin tescilli ticari markasıdır.\n\n'Popüler Sayfalar' www.alexa.com/topsites adresinden alınmaktadır. Google, Facebook, Twitter, Yahoo, Wikipedia, Digg, Delicio.us, Slashdot, MySpace veya burada belirtilen diğer hiçbir sayfayla ilişkim yoktur. Bunlar bu uzantının kullanıcısına kolaylık olması için sağlanmıştır. Yeni sekmeniz yerine bu sayfaları veya diğerlerini kullandığınızda, ilgili siteyle veya hizmetle aranızdaki her tür sözleşmeye tabi olmaya devam edersiniz."
+    "message": "Классическая замена новой вкладки Chrome с приложениями, закладками, часто посещаемыми сайтами, локальными миниатюрами и редактируемыми ссылками.",
+    "description": "Chrome Web Store description"
   },
   "options_anyQuestions": {
     "message": "Herhangi bir sorunuz olursa yanıtlar ve ipuçları için $WIKI$ sayfasına bakmayı unutmayın",
@@ -57,7 +58,7 @@
     "placeholders": {
       "name": {
         "content": "$1",
-        "example": "New Tab Redirect!"
+        "example": "Classic New Tab"
       }
     }
   },
@@ -74,7 +75,7 @@
     "description": "Title displayed on github link"
   },
   "extDesc": {
-    "message": "Yeni sekmeler için kullanıcı tanımlı bir URL ayarlar.",
+    "message": "Заменяет новую вкладку Chrome классическим экраном с приложениями и часто посещаемыми сайтами.",
     "description": "Extension Description"
   },
   "btnCancel": {
@@ -103,7 +104,7 @@
     "placeholders": {
       "name": {
         "content": "$1",
-        "example": "New Tab Redirect!"
+        "example": "Classic New Tab"
       }
     }
   },
@@ -180,11 +181,11 @@
     "description": "Apps tab label"
   },
   "settingsTitle": {
-    "message": "Настройки Old New Tab",
+    "message": "Настройки Classic New Tab",
     "description": "Options page title"
   },
   "settingsHeading": {
-    "message": "Настройки Old New Tab",
+    "message": "Настройки Classic New Tab",
     "description": "Options page heading"
   },
   "settingsSubtitle": {

@@ -1,15 +1,39 @@
-# Old New Tab
+# Classic New Tab
 
-## Licenses
+Classic New Tab is a Chrome extension that replaces the default new tab page with a classic layout for apps, bookmarks, and most visited sites.
 
-This extension is a fork of [NewTab Redirect](https://github.com/jimschubert/NewTab-Redirect).
+The extension keeps the current tab experience local and practical:
 
-* NewTab Redirect is released under the [MIT license](https://github.com/jimschubert/NewTab-Redirect/blob/e35d77b583c3d762ace67694ee76ca16a27e0690/LICENSE).
+- shows Chrome apps and bookmark shortcuts;
+- shows most visited sites as tiles;
+- captures local thumbnails for visible most visited tiles;
+- supports pinned and custom tiles;
+- allows hiding, restoring, adding, and editing tiles;
+- includes an options page for tile management and thumbnail cleanup.
 
-* AngularJS: Code is MIT Licensed. Details are available [here](https://github.com/angular/angular.js/blob/master/LICENSE)
+## Installation for Testing
 
-* jQuery: Code is MIT Licensed. Details are available [here](https://github.com/jquery/jquery/blob/master/MIT-LICENSE.txt)
+1. Open `chrome://extensions`.
+2. Enable **Developer mode**.
+3. Click **Load unpacked**.
+4. Select this repository directory.
+5. Open a new tab.
 
-* Font Awesome by Dave Gandy - http://fontawesome.io: Code is MIT licensed, Fonts are SIL OFL 1.1. Details are available [here](http://fontawesome.io/license/)
+After changing source files, return to `chrome://extensions` and reload the extension.
 
-* The new tab icon was released by <em>tango!</em> into the public domain.  Details are available [here](http://en.wikipedia.org/wiki/File:Tab-new.svg)
+## Privacy
+
+Classic New Tab stores tile settings with Chrome extension storage. Thumbnails are captured from pages you visit and are stored locally in `chrome.storage.local`. The extension does not send thumbnails or browsing data to a server.
+
+## License
+
+Classic New Tab is distributed under the GNU General Public License, version 3 or later. See [LICENSE](LICENSE).
+
+This project is based on MIT-licensed code from [NewTab Redirect](https://github.com/jimschubert/NewTab-Redirect). The original MIT notice is preserved in [LICENSE.ntp-redirect](LICENSE.ntp-redirect).
+
+Bundled third-party components keep their own licenses:
+
+- AngularJS: MIT License.
+- jQuery: MIT License.
+- Font Awesome: code under MIT License, fonts under SIL OFL 1.1.
+- The new tab icon was released into the public domain by `tango!`.

@@ -1,10 +1,10 @@
 {
   "extName": {
-    "message": "New Tab Redirect!",
+    "message": "Classic New Tab",
     "description": "Extension Name"
   },
   "extDesc": {
-    "message": "Sets a user-specified URL to load in new tabs.",
+    "message": "Replaces Chrome's new tab page with a classic apps and most visited layout.",
     "description": "Extension Description"
   },
   "redirectText": {
@@ -37,7 +37,7 @@
     "placeholders": {
       "name": {
         "content": "$1",
-        "example": "New Tab Redirect!"
+        "example": "Classic New Tab"
       }
     }
   },
@@ -47,7 +47,7 @@
     "placeholders": {
       "name": {
         "content": "$1",
-        "example": "New Tab Redirect!"
+        "example": "Classic New Tab"
       }
     }
   },
@@ -185,11 +185,11 @@
     "description": "Apps tab label"
   },
   "settingsTitle": {
-    "message": "Old New Tab settings",
+    "message": "Classic New Tab settings",
     "description": "Options page title"
   },
   "settingsHeading": {
-    "message": "Old New Tab settings",
+    "message": "Classic New Tab settings",
     "description": "Options page heading"
   },
   "settingsSubtitle": {
@@ -269,5 +269,9 @@
   "settingsDuplicateUrl": {
     "message": "This tile is already in the list.",
     "description": "Duplicate URL status text"
+  },
+  "desc": {
+    "message": "A classic replacement for Chrome's new tab page with apps, bookmarks, most visited tiles, local thumbnails, and editable custom shortcuts.",
+    "description": "Chrome Web Store description"
   }
 }
