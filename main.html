@@ -11,12 +11,12 @@
 <div ng-cloak ng-controller="MainController">
     <div class="main-container">
         <a class="switcher left" ng-click="showPreviousScreen()"
-           ng-hide="screens.length < 2">
+           ng-hide="!canShowPreviousScreen()">
             <i class="fa fa-angle-left"></i>
         </a>
 
         <a class="switcher right" ng-click="showNextScreen()"
-           ng-hide="screens.length < 2">
+           ng-hide="!canShowNextScreen()">
             <i class="fa fa-angle-right"></i>
         </a>
 

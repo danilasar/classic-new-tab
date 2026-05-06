@@ -6,6 +6,7 @@ controllers.controller('MainController',
                         function ($scope, Apps) {
     var enabled_screens_key = 'old_ntp.enabled_screens';
     var active_screen_key = 'old_ntp.active_screen';
+    var cycle_screens_key = 'old_ntp.cycle_screens';
     var show_top_key = 'old_ntp.show_top';
     var hidden_top_key = 'old_ntp.hidden_top_sites';
     var pinned_top_key = 'old_ntp.pinned_top_sites';
@@ -24,6 +25,7 @@ controllers.controller('MainController',
     $scope.screens = [];
     $scope.enabledScreenIds = [];
     $scope.activeScreenId = '';
+    $scope.cycleScreens = false;
     $scope.hiddenTopSites = [];
     $scope.pinnedTopSites = [];
     $scope.topSiteOrder = [];
@@ -79,6 +81,7 @@ controllers.controller('MainController',
 
         obj[enabled_screens_key] = $scope.enabledScreenIds.slice();
         obj[active_screen_key] = $scope.activeScreenId;
+        obj[cycle_screens_key] = $scope.cycleScreens === true;
         obj[show_top_key] = $scope.activeScreenId === 'top';
 
         Apps.saveSetting(obj);
@@ -102,6 +105,7 @@ controllers.controller('MainController',
     function cycleScreen(direction) {
         var enabled = getEnabledScreens();
         var index = -1;
+        var nextIndex;
 
         if(enabled.length < 2) {
             return;
@@ -119,12 +123,53 @@ controllers.controller('MainController',
             return;
         }
 
-        index = (index + direction + enabled.length) % enabled.length;
-        setActiveScreenInternal(enabled[index].id);
+        nextIndex = index + direction;
+
+        if($scope.cycleScreens) {
+            nextIndex = (nextIndex + enabled.length) % enabled.length;
+        } else if(nextIndex < 0 || nextIndex >= enabled.length) {
+            return;
+        }
+
+        setActiveScreenInternal(enabled[nextIndex].id);
+    }
+
+    function canSwitchScreen(direction) {
+        var enabled = getEnabledScreens();
+        var index = -1;
+
+        if(enabled.length < 2) {
+            return false;
+        }
+
+        if($scope.cycleScreens) {
+            return true;
+        }
+
+        for(i = 0; i < enabled.length; i++) {
+            if(enabled[i].id === $scope.activeScreenId) {
+                index = i;
+                break;
+            }
+        }
+
+        if(index === -1) {
+            return true;
+        }
+
+        return index + direction >= 0 && index + direction < enabled.length;
     }
 
     $scope.setActiveScreen = function(screenId) {
         setActiveScreenInternal(screenId);
+    };
+
+    $scope.canShowPreviousScreen = function() {
+        return canSwitchScreen(-1);
+    };
+
+    $scope.canShowNextScreen = function() {
+        return canSwitchScreen(1);
     };
 
     $scope.showPreviousScreen = function() {
@@ -158,6 +203,17 @@ controllers.controller('MainController',
 
         $scope.$apply();
     });
+
+    if(chrome.storage && chrome.storage.onChanged) {
+        chrome.storage.onChanged.addListener(function(changes, areaName) {
+            if(areaName !== 'sync' || !changes[cycle_screens_key]) {
+                return;
+            }
+
+            $scope.cycleScreens = changes[cycle_screens_key].newValue === true;
+            $scope.$apply();
+        });
+    }
 
     function loadBookmarks() {
         return Apps.getBookmarksBar(12)
@@ -561,8 +617,9 @@ controllers.controller('MainController',
     };
 
     // initial page setup
-    var querySettings = [enabled_screens_key, active_screen_key, show_top_key,
-                         hidden_top_key, pinned_top_key, top_site_order_key];
+    var querySettings = [enabled_screens_key, active_screen_key, cycle_screens_key,
+                         show_top_key, hidden_top_key, pinned_top_key,
+                         top_site_order_key];
 
     Apps.getSetting(querySettings)
         .then(function(settings) {
@@ -579,6 +636,7 @@ controllers.controller('MainController',
             $scope.hiddenTopSites = settings[hidden_top_key] || [];
             $scope.pinnedTopSites = settings[pinned_top_key] || [];
             $scope.topSiteOrder = settings[top_site_order_key] || [];
+            $scope.cycleScreens = settings[cycle_screens_key] === true;
 
             if(settings[active_screen_key] && screenLookup[settings[active_screen_key]]) {
                 $scope.activeScreenId = settings[active_screen_key];

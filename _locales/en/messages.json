@@ -297,5 +297,13 @@
   "settingsScreenRequired": {
     "message": "At least one screen must stay enabled.",
     "description": "Validation message for screen toggles"
+  },
+  "settingsCycleScreensLabel": {
+    "message": "Loop tab navigation",
+    "description": "Checkbox label for wrapping between new tab screens"
+  },
+  "settingsCycleScreensDescription": {
+    "message": "After the last tab, continue from the first one when using arrows or the mouse wheel.",
+    "description": "Checkbox description for cyclic screen switching"
   }
 }

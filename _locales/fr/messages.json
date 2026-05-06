@@ -289,5 +289,13 @@
   "settingsScreenRequired": {
     "message": "Нужно оставить включенной хотя бы одну вкладку.",
     "description": "Validation message for screen toggles"
+  },
+  "settingsCycleScreensLabel": {
+    "message": "Переключать вкладки по кругу",
+    "description": "Checkbox label for wrapping between new tab screens"
+  },
+  "settingsCycleScreensDescription": {
+    "message": "После последней вкладки переходить к первой при переключении стрелками или колесом мыши.",
+    "description": "Checkbox description for cyclic screen switching"
   }
 }

@@ -5,6 +5,7 @@ var HIDDEN_TOP_SITES_KEY = 'old_ntp.hidden_top_sites';
 var PINNED_TOP_SITES_KEY = 'old_ntp.pinned_top_sites';
 var TOP_SITE_PREVIEWS_KEY = 'old_ntp.top_site_previews';
 var ENABLED_SCREENS_KEY = 'old_ntp.enabled_screens';
+var SCREEN_CYCLE_KEY = 'old_ntp.cycle_screens';
 
 var screenDefs = window.newTabScreens || [
     {
@@ -32,6 +33,7 @@ var state = {
     pinnedTopSites: [],
     previews: {},
     enabledScreenIds: [],
+    cycleScreens: false,
     editingIndex: -1
 };
 
@@ -181,12 +183,59 @@ function saveEnabledScreens(callback) {
     storageSet('sync', values, callback);
 }
 
+function saveCycleScreens(callback) {
+    var values = {};
+
+    values[SCREEN_CYCLE_KEY] = state.cycleScreens === true;
+    storageSet('sync', values, callback);
+}
+
 function renderPreviewCount() {
     var count = Object.keys(state.previews || {}).length;
 
     text(document.getElementById('previewCount'),
          chrome.i18n.getMessage('settingsPreviewCount', [String(count)]) ||
          String(count));
+}
+
+function renderCycleScreensSetting() {
+    var container = document.getElementById('screenCycleToggle');
+    var row;
+    var checkbox;
+    var textBlock;
+    var title;
+    var desc;
+
+    clearNode(container);
+
+    row = document.createElement('label');
+    checkbox = document.createElement('input');
+    textBlock = document.createElement('span');
+    title = document.createElement('strong');
+    desc = document.createElement('span');
+
+    row.className = 'toggle-row footer-toggle-row';
+    checkbox.type = 'checkbox';
+    checkbox.checked = state.cycleScreens === true;
+
+    title.className = 'toggle-title';
+    desc.className = 'toggle-desc';
+
+    text(title, msg('settingsCycleScreensLabel'));
+    text(desc, msg('settingsCycleScreensDescription'));
+
+    textBlock.appendChild(title);
+    if(desc.textContent) {
+        textBlock.appendChild(desc);
+    }
+
+    row.appendChild(checkbox);
+    row.appendChild(textBlock);
+    container.appendChild(row);
+
+    checkbox.addEventListener('change', function() {
+        toggleCycleScreens(checkbox.checked);
+    });
 }
 
 function renderScreens() {
@@ -243,6 +292,14 @@ function toggleScreen(screenId, enabled) {
     state.enabledScreenIds = next;
     saveEnabledScreens(function() {
         renderScreens();
+        showStatus(msg('settingsSaved'));
+    });
+}
+
+function toggleCycleScreens(enabled) {
+    state.cycleScreens = !!enabled;
+    saveCycleScreens(function() {
+        renderCycleScreensSetting();
         showStatus(msg('settingsSaved'));
     });
 }
@@ -333,6 +390,7 @@ function renderHiddenTopSites() {
 }
 
 function render() {
+    renderCycleScreensSetting();
     renderScreens();
     renderPinnedTopSites();
     renderHiddenTopSites();
@@ -456,17 +514,17 @@ function clearPreviews() {
 }
 
 function loadState(callback) {
-    storageGet('sync', [HIDDEN_TOP_SITES_KEY, PINNED_TOP_SITES_KEY],
+    storageGet('sync', [HIDDEN_TOP_SITES_KEY, PINNED_TOP_SITES_KEY,
+                        ENABLED_SCREENS_KEY, SCREEN_CYCLE_KEY],
         function(syncItems) {
             storageGet('local', [TOP_SITE_PREVIEWS_KEY], function(localItems) {
-                storageGet('sync', [ENABLED_SCREENS_KEY], function(screenItems) {
-                    state.hiddenTopSites = syncItems[HIDDEN_TOP_SITES_KEY] || [];
-                    state.pinnedTopSites = syncItems[PINNED_TOP_SITES_KEY] || [];
-                    state.previews = localItems[TOP_SITE_PREVIEWS_KEY] || {};
-                    state.enabledScreenIds = screenItems[ENABLED_SCREENS_KEY] ||
-                        defaultEnabledScreens();
-                    callback();
-                });
+                state.hiddenTopSites = syncItems[HIDDEN_TOP_SITES_KEY] || [];
+                state.pinnedTopSites = syncItems[PINNED_TOP_SITES_KEY] || [];
+                state.previews = localItems[TOP_SITE_PREVIEWS_KEY] || {};
+                state.enabledScreenIds = syncItems[ENABLED_SCREENS_KEY] ||
+                    defaultEnabledScreens();
+                state.cycleScreens = syncItems[SCREEN_CYCLE_KEY] === true;
+                callback();
             });
         });
 }

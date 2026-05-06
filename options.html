@@ -18,6 +18,20 @@
         <section class="settings-section">
             <div class="section-toolbar">
                 <div>
+                    <h2 data-i18n="settingsScreensHeading"></h2>
+                    <p data-i18n="settingsScreensDescription"></p>
+                </div>
+            </div>
+
+            <div class="screen-settings">
+                <div id="screenToggles" class="toggle-list"></div>
+                <div id="screenCycleToggle"></div>
+            </div>
+        </section>
+
+        <section class="settings-section">
+            <div class="section-toolbar">
+                <div>
                     <h2 data-i18n="settingsPinnedHeading"></h2>
                     <p data-i18n="settingsPinnedDescription"></p>
                 </div>
@@ -75,7 +89,10 @@
             <a class="chrome-store" href="https://chromewebstore.google.com/" target="_blank" rel="noopener noreferrer" data-i18n-title="webStore">
                 <span class="chrome-store-text" data-i18n="webStore"></span>
             </a>
-            <div id="screenToggles" class="footer-screen-toggles" aria-label="Screen toggles"></div>
+            <div class="footer-settings">
+                <div id="oldFooterScreenCycleToggle"></div>
+                <div id="oldFooterScreenToggles" class="footer-screen-toggles" aria-label="Screen toggles"></div>
+            </div>
         </footer>
     </main>
 

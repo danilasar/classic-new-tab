@@ -193,8 +193,13 @@ button:disabled {
   line-height: 1.4;
 }
 
+.screen-settings {
+  display: grid;
+  gap: 10px;
+}
+
 .options-footer {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 18px;
   justify-content: space-between;
@@ -251,6 +256,33 @@ button:disabled {
   justify-content: flex-end;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.footer-settings {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.footer-toggle-row {
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid #d7dce1;
+  border-radius: 6px;
+  background: #fff;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.footer-toggle-row:hover {
+  background: #fff;
+  border-color: #c4cad0;
+}
+
+.footer-toggle-row input {
+  margin-top: 2px;
 }
 
 .footer-screen-toggles .toggle-row {
@@ -365,6 +397,11 @@ button:disabled {
   .options-footer {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .footer-settings {
+    align-items: flex-start;
+    width: 100%;
   }
 
   .footer-screen-toggles {
