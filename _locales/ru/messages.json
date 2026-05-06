@@ -264,29 +264,5 @@
   "settingsDuplicateUrl": {
     "message": "Эта плитка уже есть в списке.",
     "description": "Duplicate URL status text"
-  },
-  "settingsLegacyHeading": {
-    "message": "Старые настройки редиректа",
-    "description": "Legacy settings section heading"
-  },
-  "settingsLegacyDescription": {
-    "message": "Эти значения сохранены для совместимости с исходными настройками New Tab Redirect. Текущая страница новой вкладки не включает редирект автоматически.",
-    "description": "Legacy settings section description"
-  },
-  "settingsLegacyLoadSync": {
-    "message": "Загрузить sync",
-    "description": "Load synchronized legacy settings button text"
-  },
-  "settingsCustomPages": {
-    "message": "Свои страницы",
-    "description": "Custom quick links heading"
-  },
-  "options_chkSync": {
-    "message": "Синхронизировать настройки",
-    "description": "Labels the checkbox indicating options will be saved via Google Chrome Sync"
-  },
-  "options_chkShowWelcome": {
-    "message": "Показывать приветствие после обновления",
-    "description": "Labels the checkbox indicating the Welcome Page will be displayed when the extension is upgraded"
   }
 }

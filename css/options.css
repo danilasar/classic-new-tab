@@ -127,31 +127,17 @@ button:disabled {
   background: #fff;
 }
 
-.legacy-form {
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) auto auto auto;
-  gap: 12px;
-  align-items: end;
-  padding: 14px;
-  margin-bottom: 16px;
-  border: 1px solid #d7dce1;
-  border-radius: 6px;
-  background: #fff;
-}
-
 .tile-form[hidden] {
   display: none;
 }
 
-.tile-form label,
-.wide-field {
+.tile-form label {
   display: grid;
   gap: 5px;
   color: #4b5057;
 }
 
-.tile-form input,
-.wide-field input {
+.tile-form input {
   width: 100%;
   min-height: 32px;
   padding: 6px 9px;
@@ -159,19 +145,6 @@ button:disabled {
   border-radius: 4px;
   color: #202124;
   background: #fff;
-}
-
-.checkbox-field {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  min-height: 32px;
-  color: #4b5057;
-  white-space: nowrap;
-}
-
-.checkbox-field input {
-  margin: 0;
 }
 
 .form-actions,
@@ -185,31 +158,6 @@ button:disabled {
 .settings-list {
   display: grid;
   gap: 8px;
-}
-
-.quick-links-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.quick-links-grid h3 {
-  margin: 0 0 8px;
-  font-size: 13px;
-  line-height: 1.35;
-  font-weight: 600;
-}
-
-.quick-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.quick-links button {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .settings-row {
@@ -281,9 +229,7 @@ button:disabled {
 @media (max-width: 720px) {
   .section-toolbar,
   .settings-row,
-  .tile-form,
-  .legacy-form,
-  .quick-links-grid {
+  .tile-form {
     grid-template-columns: 1fr;
   }
 

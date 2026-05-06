@@ -269,21 +269,5 @@
   "settingsDuplicateUrl": {
     "message": "This tile is already in the list.",
     "description": "Duplicate URL status text"
-  },
-  "settingsLegacyHeading": {
-    "message": "Legacy redirect settings",
-    "description": "Legacy settings section heading"
-  },
-  "settingsLegacyDescription": {
-    "message": "These values are kept for compatibility with the original New Tab Redirect options. The current new tab page does not redirect automatically.",
-    "description": "Legacy settings section description"
-  },
-  "settingsLegacyLoadSync": {
-    "message": "Load sync",
-    "description": "Load synchronized legacy settings button text"
-  },
-  "settingsCustomPages": {
-    "message": "Custom pages",
-    "description": "Custom quick links heading"
   }
 }
