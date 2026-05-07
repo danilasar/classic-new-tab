@@ -26,6 +26,9 @@ controllers.controller('MainController',
     $scope.screens = [];
     $scope.enabledScreenIds = [];
     $scope.activeScreenId = '';
+    $scope.canShowPreviousScreenState = false;
+    $scope.canShowNextScreenState = false;
+    $scope.showScreenTabs = false;
     $scope.cycleScreens = false;
     $scope.screenOrder = [];
     $scope.draggedScreenId = '';
@@ -44,6 +47,14 @@ controllers.controller('MainController',
     $scope.bookmarkFolders = [];
     $scope.bookmarkRootId = '';
     $scope.bookmarkDefaultRootId = '';
+    $scope.bookmarkPanel = window.PagedPanel.create();
+    $scope.bookmarkEmptyStateLabel = '';
+    $scope.bookmarkEditFolderTitle = '';
+    $scope.bookmarkEditTitle = '';
+    $scope.bookmarkDeleteFolderTitle = '';
+    $scope.bookmarkDeleteTitle = '';
+    $scope.bookmarkFolderLabel = '';
+    $scope.bookmarkUntitledFolderLabel = '';
     $scope.draggedBookmarkId = '';
     $scope.draggedBookmark = null;
     $scope.draggedBookmarkIndex = null;
@@ -62,12 +73,41 @@ controllers.controller('MainController',
     $scope.tileModal = {
         open: false
     };
+    $scope.uiLabels = {};
 
     $scope.msg = function(key, substitutions) {
         return chrome.i18n.getMessage(key, substitutions) || key;
     };
 
     document.title = $scope.msg('newTabTitle');
+    $scope.uiLabels = {
+        addBookmark: $scope.msg('addBookmark'),
+        addBookmarkFolder: $scope.msg('addBookmarkFolder'),
+        addBookmarkRootFolder: $scope.msg('addBookmarkRootFolder'),
+        addSite: $scope.msg('addSite'),
+        bookmarkFolderLabel: $scope.msg('bookmarkFolderLabel'),
+        btnAdd: $scope.msg('btnAdd'),
+        btnSave: $scope.msg('btnSave'),
+        chromeLogoAlt: $scope.msg('chromeLogoAlt'),
+        close: $scope.msg('close'),
+        editBookmark: $scope.msg('editBookmark'),
+        editBookmarkFolder: $scope.msg('editBookmarkFolder'),
+        editSite: $scope.msg('editSite'),
+        siteTitleLabel: $scope.msg('siteTitleLabel'),
+        siteUrlLabel: $scope.msg('siteUrlLabel'),
+        siteUrlPlaceholder: $scope.msg('siteUrlPlaceholder'),
+        webStore: $scope.msg('webStore')
+    };
+    $scope.bookmarkEmptyStateLabel = $scope.msg('bookmarksEmptyState');
+    $scope.bookmarkEditFolderTitle = $scope.msg('editBookmarkFolder');
+    $scope.bookmarkEditTitle = $scope.msg('editBookmark');
+    $scope.bookmarkDeleteFolderTitle = $scope.msg('deleteBookmarkFolder');
+    $scope.bookmarkDeleteTitle = $scope.msg('deleteBookmark');
+    $scope.bookmarkFolderLabel = $scope.msg('bookmarksFolder');
+    $scope.bookmarkUntitledFolderLabel = $scope.msg('bookmarksUntitledFolder');
+    refreshBookmarkPanel();
+    refreshTileModalView();
+    refreshBookmarkModalView();
 
     function getEnabledScreens() {
         return $scope.enabledScreenIds.map(function(id) {
@@ -134,6 +174,25 @@ controllers.controller('MainController',
             $scope.activeScreenId = $scope.screens.length ?
                 $scope.screens[0].id : '';
         }
+
+        refreshScreenChrome();
+    }
+
+    function refreshScreenChrome() {
+        $scope.screens.forEach(function(screen) {
+            screen.active = screen.id === $scope.activeScreenId;
+            screen.className = [
+                screen.active ? 'active' : '',
+                $scope.draggedScreenId === screen.id ? 'tab-dragging' : '',
+                $scope.dragOverScreenId === screen.id ? 'tab-drag-over' : ''
+            ].filter(function(className) {
+                return !!className;
+            }).join(' ');
+            screen.title = $scope.msg(screen.titleKey);
+        });
+        $scope.canShowPreviousScreenState = canSwitchScreen(-1);
+        $scope.canShowNextScreenState = canSwitchScreen(1);
+        $scope.showScreenTabs = $scope.screens.length >= 2;
     }
 
     function saveScreenPreferences() {
@@ -166,6 +225,7 @@ controllers.controller('MainController',
         }
 
         $scope.activeScreenId = screenId;
+        refreshScreenChrome();
         if(persist !== false) {
             saveScreenPreferences();
         }
@@ -263,6 +323,7 @@ controllers.controller('MainController',
         $scope.draggedScreenId = screen.id;
         $scope.dragOverScreenId = screen.id;
         $scope.suppressScreenTabClick = false;
+        refreshScreenChrome();
 
         dataTransfer = eventDataTransfer(event);
         if(dataTransfer) {
@@ -287,6 +348,7 @@ controllers.controller('MainController',
         }
 
         $scope.dragOverScreenId = screen.id;
+        refreshScreenChrome();
     };
 
     $scope.dropScreen = function(screen, event) {
@@ -325,6 +387,7 @@ controllers.controller('MainController',
         $scope.draggedScreenId = '';
         $scope.dragOverScreenId = '';
         $scope.suppressScreenTabClick = true;
+        refreshScreenChrome();
 
         window.setTimeout(function() {
             $scope.suppressScreenTabClick = false;
@@ -380,11 +443,72 @@ controllers.controller('MainController',
     function normalizeBookmarkPath(path) {
         path = path || [];
 
-        if(path.length && !path[0].title) {
-            path[0].title = $scope.msg('bookmarksRootFallback');
-        }
+        path.forEach(function(item) {
+            if(item && !item.title) {
+                item.title = $scope.msg('bookmarksRootFallback');
+            }
+        });
 
         return path;
+    }
+
+    function bookmarkDomain(url) {
+        var parser;
+
+        if(!url) {
+            return '';
+        }
+
+        parser = document.createElement('a');
+        parser.href = url;
+
+        return parser.hostname || url;
+    }
+
+    function decorateBookmarkItem(item) {
+        item = item || {};
+
+        if(item.url) {
+            item.displayTitle = item.title || item.url;
+            item.displayUrl = bookmarkDomain(item.url);
+        } else {
+            item.displayTitle = item.title || $scope.bookmarkUntitledFolderLabel;
+            item.displayUrl = $scope.bookmarkFolderLabel;
+        }
+
+        return item;
+    }
+
+    function refreshTileModalView() {
+        $scope.tileModal.titleLabel = $scope.tileModal.mode === 'edit' ?
+            $scope.uiLabels.editSite : $scope.uiLabels.addSite;
+        $scope.tileModal.submitLabel = $scope.tileModal.mode === 'edit' ?
+            $scope.uiLabels.btnSave : $scope.uiLabels.btnAdd;
+    }
+
+    function refreshBookmarkModalView() {
+        var modal = $scope.bookmarkModal;
+
+        modal.showBookmarkUrl = modal.type === 'bookmark';
+        modal.showFolderSelect = !!(modal.folderOptions &&
+            modal.folderOptions.length);
+        modal.showRootFolderTitle = modal.type === 'folder' && modal.root;
+        modal.showBookmarkTitle = modal.type === 'bookmark';
+        modal.showFolderTitle = modal.type === 'folder' && !modal.root;
+        modal.submitLabel = modal.mode === 'edit' ?
+            $scope.uiLabels.btnSave : $scope.uiLabels.btnAdd;
+
+        if(modal.showRootFolderTitle) {
+            modal.titleLabel = $scope.uiLabels.addBookmarkRootFolder;
+        } else if(modal.type === 'folder') {
+            modal.titleLabel = modal.mode === 'edit' ?
+                $scope.uiLabels.editBookmarkFolder :
+                $scope.uiLabels.addBookmarkFolder;
+        } else {
+            modal.titleLabel = modal.mode === 'edit' ?
+                $scope.uiLabels.editBookmark :
+                $scope.uiLabels.addBookmark;
+        }
     }
 
     function isBookmarkRootOverview() {
@@ -395,60 +519,65 @@ controllers.controller('MainController',
         return isBookmarkRootOverview();
     };
 
-    function buildBookmarkPages(activeIndex, pageCount) {
-        var pages = [];
-        var included = {};
-        var i;
-        var previousIndex = -1;
-
-        function include(index) {
-            if(index >= 0 && index < pageCount) {
-                included[index] = true;
+    function refreshBookmarkPanel() {
+        $scope.bookmarkPanel = window.PagedPanel.create({
+            toolbar: {
+                dragActive: !!$scope.draggedBookmarkId
+            },
+            back: {
+                disabled: ($scope.bookmarkPath || []).length < 2,
+                title: $scope.msg('bookmarksBack')
+            },
+            breadcrumbs: $scope.bookmarkPath || [],
+            actions: {
+                addBookmark: {
+                    hidden: isBookmarkRootOverview(),
+                    label: $scope.msg('addBookmark'),
+                    title: $scope.msg('addBookmark')
+                },
+                addFolder: {
+                    label: isBookmarkRootOverview() ?
+                        $scope.msg('addBookmarkRootFolder') :
+                        $scope.msg('addBookmarkFolder'),
+                    title: isBookmarkRootOverview() ?
+                        $scope.msg('addBookmarkRootFolder') :
+                        $scope.msg('addBookmarkFolder')
+                }
+            },
+            buttons: [
+                {
+                    id: 'addBookmark',
+                    hidden: isBookmarkRootOverview()
+                },
+                {
+                    id: 'addFolder'
+                }
+            ],
+            pagination: {
+                hasNext: $scope.bookmarkPageIndex < $scope.bookmarkPageCount - 1,
+                hasPrevious: $scope.bookmarkPageIndex > 0,
+                nextTitle: $scope.msg('bookmarksNextPage'),
+                pages: $scope.bookmarkPages || [],
+                previousTitle: $scope.msg('bookmarksPreviousPage'),
+                show: $scope.bookmarkPageCount > 1
+            },
+            tileStrategy: {
+                name: 'bookmarks',
+                pageSize: $scope.bookmarkPageSize
             }
-        }
-
-        include(0);
-        include(pageCount - 1);
-        include(activeIndex - 1);
-        include(activeIndex);
-        include(activeIndex + 1);
-
-        for(i = 0; i < pageCount; i++) {
-            if(!included[i]) {
-                continue;
-            }
-
-            if(previousIndex !== -1 && i - previousIndex > 1) {
-                pages.push({
-                    separator: true,
-                    label: '...'
-                });
-            }
-
-            pages.push({
-                index: i,
-                label: String(i + 1)
-            });
-            previousIndex = i;
-        }
-
-        return pages;
+        });
     }
 
     function updateBookmarkPage(pageIndex) {
-        var total = ($scope.allBookmarks || []).length;
-        var start;
+        var page;
 
-        $scope.bookmarkPageCount = Math.max(
-            1, Math.ceil(total / $scope.bookmarkPageSize));
-        $scope.bookmarkPageIndex = Math.max(
-            0, Math.min(pageIndex || 0, $scope.bookmarkPageCount - 1));
-        $scope.bookmarkPages = buildBookmarkPages(
-            $scope.bookmarkPageIndex, $scope.bookmarkPageCount);
-
-        start = $scope.bookmarkPageIndex * $scope.bookmarkPageSize;
-        $scope.bookmarks = $scope.allBookmarks.slice(
-            start, start + $scope.bookmarkPageSize);
+        page = window.PagedPanel.getPage(
+            $scope.allBookmarks, pageIndex, $scope.bookmarkPageSize);
+        $scope.bookmarkPageCount = page.pageCount;
+        $scope.bookmarkPageIndex = page.pageIndex;
+        $scope.bookmarkPages = page.pages;
+        $scope.bookmarks = page.items;
+        refreshBookmarkPanel();
     }
 
     function bookmarkAbsoluteIndex(localIndex) {
@@ -530,7 +659,7 @@ controllers.controller('MainController',
                             }
                         }
 
-                        return item;
+                        return decorateBookmarkItem(item);
                     });
                     $scope.bookmarkFolderId = result.folder ? result.folder.id : '';
                     $scope.bookmarkRootId = result.rootId || '';
@@ -552,6 +681,7 @@ controllers.controller('MainController',
                 $scope.bookmarkFolders = [];
                 $scope.bookmarkRootId = '';
                 $scope.bookmarkDefaultRootId = '';
+                refreshBookmarkPanel();
             });
     }
 
@@ -778,6 +908,7 @@ controllers.controller('MainController',
             parentId: $scope.bookmarkFolderId,
             folderOptions: bookmarkFolderOptions()
         };
+        refreshBookmarkModalView();
     };
 
     $scope.openAddBookmarkFolder = function(event) {
@@ -797,6 +928,7 @@ controllers.controller('MainController',
             folderOptions: isBookmarkRootOverview() ?
                 [] : bookmarkFolderOptions()
         };
+        refreshBookmarkModalView();
     };
 
     $scope.openEditBookmark = function(bookmark, event) {
@@ -821,10 +953,14 @@ controllers.controller('MainController',
             folderOptions: bookmarkFolderOptions(
                 bookmark, bookmark.parentId === $scope.bookmarkRootId)
         };
+        refreshBookmarkModalView();
     };
 
     $scope.closeBookmarkModal = function() {
-        $scope.bookmarkModal.open = false;
+        $scope.bookmarkModal = {
+            open: false
+        };
+        refreshBookmarkModalView();
     };
 
     $scope.saveBookmarkModal = function(event) {
@@ -906,6 +1042,7 @@ controllers.controller('MainController',
         $scope.dragOverBookmarkIndex = $scope.draggedBookmarkIndex;
         $scope.dragOverBookmarkFolderId = '';
         $scope.suppressBookmarkClick = false;
+        refreshBookmarkPanel();
 
         dataTransfer = eventDataTransfer(event);
         if(dataTransfer) {
@@ -979,6 +1116,7 @@ controllers.controller('MainController',
         $scope.dragOverBookmarkIndex = null;
         $scope.dragOverBookmarkFolderId = '';
         $scope.suppressBookmarkClick = true;
+        refreshBookmarkPanel();
 
         window.setTimeout(function() {
             $scope.suppressBookmarkClick = false;
@@ -1456,6 +1594,7 @@ controllers.controller('MainController',
             title: site ? site.title : '',
             url: site ? site.url : ''
         };
+        refreshTileModalView();
     }
 
     $scope.openAddTopSite = function(event) {
@@ -1479,6 +1618,7 @@ controllers.controller('MainController',
         $scope.tileModal = {
             open: false
         };
+        refreshTileModalView();
     };
 
     $scope.saveTileModal = function(event) {

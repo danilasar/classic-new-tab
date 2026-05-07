@@ -19,6 +19,13 @@ html, body {
     height: 100%;
 }
 
+[ng-cloak],
+[data-ng-cloak],
+.ng-cloak,
+.ng-hide {
+    display: none !important;
+}
+
 body {
     min-width: 560px;
     color: #bbb;

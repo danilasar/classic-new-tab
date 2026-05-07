@@ -1,40 +1,40 @@
 <div class="container bookmarks-container">
     <div class="bookmark-toolbar"
-         ng-class="{'bookmark-drag-active': draggedBookmarkId}">
+         ng-class="{'bookmark-drag-active': bookmarkPanel.toolbar.dragActive}">
         <button class="bookmark-nav-button"
                 ng-click="showBookmarkParent($event)"
                 ont-dragover="dragOverBookmarkParent($event)"
                 ont-drop="dropBookmarkToParent($event)"
-                ng-disabled="bookmarkPath.length < 2"
-                title="{{ msg('bookmarksBack') }}"
+                ng-disabled="bookmarkPanel.back.disabled"
+                title="{{ bookmarkPanel.back.title }}"
                 type="button">
             <i class="fa fa-arrow-left"></i>
         </button>
         <div class="bookmark-breadcrumbs">
             <a href=""
-               ng-repeat="pathItem in bookmarkPath track by pathItem.id"
+               ng-repeat="pathItem in bookmarkPanel.breadcrumbs track by pathItem.id"
                ng-click="openBookmarkPath(pathItem, $event)"
                ont-dragover="dragOverBookmarkPath(pathItem, $event)"
                ont-drop="dropBookmarkToPath(pathItem, $event)"
                ng-class="{'active': pathItem.id === bookmarkFolderId}">
-                {{ pathItem.title || msg('bookmarksRootFallback') }}
+                {{ pathItem.title }}
             </a>
         </div>
         <div class="bookmark-toolbar-spacer"></div>
         <button class="bookmark-toolbar-button"
                 ng-click="openAddBookmark($event)"
-                ng-hide="isBookmarkRootOverview()"
-                title="{{ msg('addBookmark') }}"
+                ng-hide="bookmarkPanel.actions.addBookmark.hidden"
+                title="{{ bookmarkPanel.actions.addBookmark.title }}"
                 type="button">
             <i class="fa fa-bookmark"></i>
-            <span>{{ msg('addBookmark') }}</span>
+            <span>{{ bookmarkPanel.actions.addBookmark.label }}</span>
         </button>
         <button class="bookmark-toolbar-button"
                 ng-click="openAddBookmarkFolder($event)"
-                title="{{ isBookmarkRootOverview() ? msg('addBookmarkRootFolder') : msg('addBookmarkFolder') }}"
+                title="{{ bookmarkPanel.actions.addFolder.title }}"
                 type="button">
             <i class="fa fa-folder"></i>
-            <span>{{ isBookmarkRootOverview() ? msg('addBookmarkRootFolder') : msg('addBookmarkFolder') }}</span>
+            <span>{{ bookmarkPanel.actions.addFolder.label }}</span>
         </button>
     </div>
 
@@ -43,9 +43,9 @@
                 ng-click="showPreviousBookmarkPage($event)"
                 ont-dragover="dragOverBookmarkPage({index: bookmarkPageIndex - 1}, $event)"
                 ont-drop="moveDraggedBookmarkToPage({index: bookmarkPageIndex - 1}, $event)"
-                ng-disabled="!canShowPreviousBookmarkPage()"
-                ng-show="bookmarkPageCount > 1"
-                title="{{ msg('bookmarksPreviousPage') }}"
+                ng-disabled="!bookmarkPanel.pagination.hasPrevious"
+                ng-show="bookmarkPanel.pagination.show"
+                title="{{ bookmarkPanel.pagination.previousTitle }}"
                 type="button">
             <i class="fa fa-angle-left"></i>
         </button>
@@ -65,7 +65,7 @@
                  ont-dragend="endBookmarkDrag()">
                 <a ng-if="bookmark.url"
                    ng-href="{{ bookmark.url }}"
-                   ng-title="{{ bookmark.title || bookmark.url }}"
+                   title="{{ bookmark.displayTitle }}"
                    target="_self"
                    class="app-icon-container"
                    ng-click="openBookmark($event)">
@@ -79,36 +79,36 @@
                                  ng-src="chrome://favicon/{{ bookmark.url }}"
                                  alt="" />
                             <span class="site-preview-title">
-                                {{ bookmark.title || bookmark.url }}
+                                {{ bookmark.displayTitle }}
                             </span>
                             <span class="site-preview-url">
-                                {{ bookmark.url | domain }}
+                                {{ bookmark.displayUrl }}
                             </span>
                         </div>
                     </div>
 
                     <span class="app-desc">
-                        {{ bookmark.title || bookmark.url }}
+                        {{ bookmark.displayTitle }}
                     </span>
                 </a>
                 <button class="bookmark-edit"
                         ng-if="bookmark.url"
                         ng-click="openEditBookmark(bookmark, $event)"
-                        title="{{ msg('editBookmark') }}"
+                        title="{{ bookmarkEditTitle }}"
                         type="button">
                     <i class="fa fa-pencil"></i>
                 </button>
                 <button class="bookmark-delete"
                         ng-if="bookmark.url"
                         ng-click="removeBookmark(bookmark, $event)"
-                        title="{{ msg('deleteBookmark') }}"
+                        title="{{ bookmarkDeleteTitle }}"
                         type="button">
                     <i class="fa fa-times"></i>
                 </button>
                 <a ng-if="!bookmark.url"
                    href=""
                    ng-click="openBookmarkFolder(bookmark, $event)"
-                   ng-title="{{ bookmark.title || msg('bookmarksUntitledFolder') }}"
+                   title="{{ bookmark.displayTitle }}"
                    class="app-icon-container bookmark-folder"
                    ont-dragover="dragOverBookmarkFolder(bookmark, $event)"
                    ont-dragleave="leaveBookmarkFolderDrag(bookmark, $event)"
@@ -117,35 +117,35 @@
                         <div class="site-preview-fallback">
                             <i class="fa fa-folder bookmark-folder-icon"></i>
                             <span class="site-preview-title">
-                                {{ bookmark.title || msg('bookmarksUntitledFolder') }}
+                                {{ bookmark.displayTitle }}
                             </span>
                             <span class="site-preview-url">
-                                {{ msg('bookmarksFolder') }}
+                                {{ bookmark.displayUrl }}
                             </span>
                         </div>
                     </div>
 
                     <span class="app-desc">
-                        {{ bookmark.title || msg('bookmarksUntitledFolder') }}
+                        {{ bookmark.displayTitle }}
                     </span>
                 </a>
                 <button class="bookmark-edit"
                         ng-if="!bookmark.url"
                         ng-click="openEditBookmark(bookmark, $event)"
-                        title="{{ msg('editBookmarkFolder') }}"
+                        title="{{ bookmarkEditFolderTitle }}"
                         type="button">
                     <i class="fa fa-pencil"></i>
                 </button>
                 <button class="bookmark-delete"
                         ng-if="!bookmark.url"
                         ng-click="removeBookmark(bookmark, $event)"
-                        title="{{ msg('deleteBookmarkFolder') }}"
+                        title="{{ bookmarkDeleteFolderTitle }}"
                         type="button">
                     <i class="fa fa-times"></i>
                 </button>
             </div>
             <p class="app-empty-state" ng-if="allBookmarks.length === 0">
-                {{ msg('bookmarksEmptyState') }}
+                {{ bookmarkEmptyStateLabel }}
             </p>
             <span class="clear"></span>
         </div>
@@ -154,16 +154,16 @@
                 ng-click="showNextBookmarkPage($event)"
                 ont-dragover="dragOverBookmarkPage({index: bookmarkPageIndex + 1}, $event)"
                 ont-drop="moveDraggedBookmarkToPage({index: bookmarkPageIndex + 1}, $event)"
-                ng-disabled="!canShowNextBookmarkPage()"
-                ng-show="bookmarkPageCount > 1"
-                title="{{ msg('bookmarksNextPage') }}"
+                ng-disabled="!bookmarkPanel.pagination.hasNext"
+                ng-show="bookmarkPanel.pagination.show"
+                title="{{ bookmarkPanel.pagination.nextTitle }}"
                 type="button">
             <i class="fa fa-angle-right"></i>
         </button>
     </div>
 
-    <div class="bookmark-pagination" ng-show="bookmarkPageCount > 1">
-        <button ng-repeat="page in bookmarkPages track by $index"
+    <div class="bookmark-pagination" ng-show="bookmarkPanel.pagination.show">
+        <button ng-repeat="page in bookmarkPanel.pagination.pages track by $index"
                 ng-click="setBookmarkPage(page, $event)"
                 ont-dragover="dragOverBookmarkPage(page, $event)"
                 ont-drop="moveDraggedBookmarkToPage(page, $event)"
