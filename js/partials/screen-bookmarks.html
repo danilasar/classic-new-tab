@@ -2,7 +2,7 @@
     <div class="bookmark-toolbar">
         <button class="bookmark-nav-button"
                 ng-click="showBookmarkParent($event)"
-                ng-disabled="bookmarkPath.length < 2 && !isBookmarkRootOverview()"
+                ng-disabled="bookmarkPath.length < 2"
                 title="{{ msg('bookmarksBack') }}"
                 type="button">
             <i class="fa fa-arrow-left"></i>
@@ -49,7 +49,8 @@
             <div ng-repeat="bookmark in bookmarks track by bookmark.id"
                  class="app-icon bookmark-item"
                  ng-class="{'bookmark-dragging': draggedBookmarkId === bookmark.id,
-                            'bookmark-drag-over': dragOverBookmarkIndex === (bookmarkPageIndex * bookmarkPageSize) + $index}"
+                            'bookmark-drag-over': dragOverBookmarkIndex === (bookmarkPageIndex * bookmarkPageSize) + $index,
+                            'bookmark-folder-drag-over': dragOverBookmarkFolderId === bookmark.id}"
                  draggable="{{ !isBookmarkRootOverview() }}"
                  ont-dragstart="startBookmarkDrag(bookmark, $index, $event)"
                  ont-dragover="dragOverBookmark($index, $event)"
@@ -102,7 +103,10 @@
                    href=""
                    ng-click="openBookmarkFolder(bookmark, $event)"
                    ng-title="{{ bookmark.title || msg('bookmarksUntitledFolder') }}"
-                   class="app-icon-container bookmark-folder">
+                   class="app-icon-container bookmark-folder"
+                   ont-dragover="dragOverBookmarkFolder(bookmark, $event)"
+                   ont-dragleave="leaveBookmarkFolderDrag(bookmark, $event)"
+                   ont-drop="dropBookmarkIntoFolder(bookmark, $event)">
                     <div class="site-preview bookmark-folder-preview">
                         <div class="site-preview-fallback">
                             <i class="fa fa-folder bookmark-folder-icon"></i>

@@ -45,8 +45,10 @@ controllers.controller('MainController',
     $scope.bookmarkRootId = '';
     $scope.bookmarkDefaultRootId = '';
     $scope.draggedBookmarkId = '';
+    $scope.draggedBookmark = null;
     $scope.draggedBookmarkIndex = null;
     $scope.dragOverBookmarkIndex = null;
+    $scope.dragOverBookmarkFolderId = '';
     $scope.suppressBookmarkClick = false;
     $scope.bookmarkModal = {
         open: false
@@ -623,6 +625,23 @@ controllers.controller('MainController',
         loadBookmarks(pathItem.id);
     };
 
+    function canMoveDraggedBookmarkIntoFolder(folder) {
+        if(!$scope.draggedBookmark || !folder || folder.url) {
+            return false;
+        }
+
+        if($scope.draggedBookmark.id === folder.id) {
+            return false;
+        }
+
+        if(!$scope.draggedBookmark.url &&
+           bookmarkHasDescendant($scope.draggedBookmark, folder.id)) {
+            return false;
+        }
+
+        return true;
+    }
+
     $scope.showBookmarkParent = function(event) {
         var parent;
 
@@ -632,7 +651,6 @@ controllers.controller('MainController',
         }
 
         if(isBookmarkRootOverview()) {
-            loadBookmarks($scope.bookmarkDefaultRootId || '');
             return;
         }
 
@@ -782,8 +800,10 @@ controllers.controller('MainController',
         }
 
         $scope.draggedBookmarkId = bookmark.id;
+        $scope.draggedBookmark = bookmark;
         $scope.draggedBookmarkIndex = bookmarkAbsoluteIndex(localIndex);
         $scope.dragOverBookmarkIndex = $scope.draggedBookmarkIndex;
+        $scope.dragOverBookmarkFolderId = '';
         $scope.suppressBookmarkClick = false;
 
         dataTransfer = eventDataTransfer(event);
@@ -809,6 +829,7 @@ controllers.controller('MainController',
         }
 
         $scope.dragOverBookmarkIndex = bookmarkAbsoluteIndex(localIndex);
+        $scope.dragOverBookmarkFolderId = '';
     };
 
     $scope.leaveBookmarkDrag = function(localIndex, event) {
@@ -850,8 +871,10 @@ controllers.controller('MainController',
 
     $scope.endBookmarkDrag = function() {
         $scope.draggedBookmarkId = '';
+        $scope.draggedBookmark = null;
         $scope.draggedBookmarkIndex = null;
         $scope.dragOverBookmarkIndex = null;
+        $scope.dragOverBookmarkFolderId = '';
         $scope.suppressBookmarkClick = true;
 
         window.setTimeout(function() {
@@ -910,6 +933,54 @@ controllers.controller('MainController',
                 dataTransfer.dropEffect = 'move';
             }
         }
+    };
+
+    $scope.dragOverBookmarkFolder = function(folder, event) {
+        var dataTransfer;
+
+        if(!canMoveDraggedBookmarkIntoFolder(folder) || isBookmarkRootOverview()) {
+            return;
+        }
+
+        if(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            dataTransfer = eventDataTransfer(event);
+            if(dataTransfer) {
+                dataTransfer.dropEffect = 'move';
+            }
+        }
+
+        $scope.dragOverBookmarkFolderId = folder.id;
+        $scope.dragOverBookmarkIndex = null;
+    };
+
+    $scope.leaveBookmarkFolderDrag = function(folder, event) {
+        if(folder && $scope.dragOverBookmarkFolderId === folder.id) {
+            $scope.dragOverBookmarkFolderId = '';
+        }
+    };
+
+    $scope.dropBookmarkIntoFolder = function(folder, event) {
+        if(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        if(!canMoveDraggedBookmarkIntoFolder(folder) || isBookmarkRootOverview()) {
+            $scope.endBookmarkDrag();
+            return;
+        }
+
+        Apps.moveBookmark($scope.draggedBookmarkId, {
+            parentId: folder.id
+        }).then(function() {
+            loadBookmarks($scope.bookmarkFolderId);
+        }, function() {
+            window.alert($scope.msg('bookmarkOperationFailed'));
+        });
+
+        $scope.endBookmarkDrag();
     };
 
     $scope.removeBookmark = function(bookmark, event) {
