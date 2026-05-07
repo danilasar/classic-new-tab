@@ -1,7 +1,10 @@
 <div class="container bookmarks-container">
-    <div class="bookmark-toolbar">
+    <div class="bookmark-toolbar"
+         ng-class="{'bookmark-drag-active': draggedBookmarkId}">
         <button class="bookmark-nav-button"
                 ng-click="showBookmarkParent($event)"
+                ont-dragover="dragOverBookmarkParent($event)"
+                ont-drop="dropBookmarkToParent($event)"
                 ng-disabled="bookmarkPath.length < 2"
                 title="{{ msg('bookmarksBack') }}"
                 type="button">
@@ -11,6 +14,8 @@
             <a href=""
                ng-repeat="pathItem in bookmarkPath track by pathItem.id"
                ng-click="openBookmarkPath(pathItem, $event)"
+               ont-dragover="dragOverBookmarkPath(pathItem, $event)"
+               ont-drop="dropBookmarkToPath(pathItem, $event)"
                ng-class="{'active': pathItem.id === bookmarkFolderId}">
                 {{ pathItem.title || msg('bookmarksRootFallback') }}
             </a>
@@ -48,7 +53,8 @@
         <div class="bookmarks-grid">
             <div ng-repeat="bookmark in bookmarks track by bookmark.id"
                  class="app-icon bookmark-item"
-                 ng-class="{'bookmark-dragging': draggedBookmarkId === bookmark.id,
+                 ng-class="{'bookmark-drag-active': draggedBookmarkId,
+                            'bookmark-dragging': draggedBookmarkId === bookmark.id,
                             'bookmark-drag-over': dragOverBookmarkIndex === (bookmarkPageIndex * bookmarkPageSize) + $index,
                             'bookmark-folder-drag-over': dragOverBookmarkFolderId === bookmark.id}"
                  draggable="{{ !isBookmarkRootOverview() }}"

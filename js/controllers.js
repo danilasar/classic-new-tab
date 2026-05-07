@@ -455,6 +455,15 @@ controllers.controller('MainController',
         return ($scope.bookmarkPageIndex * $scope.bookmarkPageSize) + localIndex;
     }
 
+    function bookmarkDropIndex(targetIndex) {
+        if($scope.draggedBookmarkIndex !== null &&
+           targetIndex > $scope.draggedBookmarkIndex) {
+            return targetIndex + 1;
+        }
+
+        return targetIndex;
+    }
+
     function bookmarkHasDescendant(folder, candidateFolderId) {
         var foldersById = {};
         var parentId;
@@ -625,6 +634,19 @@ controllers.controller('MainController',
         loadBookmarks(pathItem.id);
     };
 
+    function canMoveDraggedBookmarkIntoPath(pathItem) {
+        if(!pathItem || !pathItem.id || pathItem.id === $scope.bookmarkFolderId) {
+            return false;
+        }
+
+        return canMoveDraggedBookmarkIntoFolder(pathItem);
+    }
+
+    function bookmarkPathParentId(pathItem) {
+        return pathItem && pathItem.id === '/' ?
+            $scope.bookmarkRootId : pathItem.id;
+    }
+
     function canMoveDraggedBookmarkIntoFolder(folder) {
         if(!$scope.draggedBookmark || !folder || folder.url) {
             return false;
@@ -660,6 +682,85 @@ controllers.controller('MainController',
 
         parent = $scope.bookmarkPath[$scope.bookmarkPath.length - 2];
         loadBookmarks(parent.id);
+    };
+
+    $scope.dragOverBookmarkParent = function(event) {
+        var parent = ($scope.bookmarkPath || [])[$scope.bookmarkPath.length - 2];
+
+        if(!canMoveDraggedBookmarkIntoPath(parent)) {
+            return;
+        }
+
+        if(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if(eventDataTransfer(event)) {
+                eventDataTransfer(event).dropEffect = 'move';
+            }
+        }
+    };
+
+    $scope.dropBookmarkToParent = function(event) {
+        var parent = ($scope.bookmarkPath || [])[$scope.bookmarkPath.length - 2];
+
+        if(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        if(!canMoveDraggedBookmarkIntoPath(parent)) {
+            $scope.endBookmarkDrag();
+            return;
+        }
+
+        Apps.moveBookmark($scope.draggedBookmarkId, {
+            parentId: bookmarkPathParentId(parent)
+        }).then(function() {
+            loadBookmarks($scope.bookmarkFolderId);
+        }, function() {
+            window.alert($scope.msg('bookmarkOperationFailed'));
+        });
+
+        $scope.endBookmarkDrag();
+    };
+
+    $scope.dragOverBookmarkPath = function(pathItem, event) {
+        var dataTransfer;
+
+        if(!canMoveDraggedBookmarkIntoPath(pathItem)) {
+            return;
+        }
+
+        if(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            dataTransfer = eventDataTransfer(event);
+            if(dataTransfer) {
+                dataTransfer.dropEffect = 'move';
+            }
+        }
+    };
+
+    $scope.dropBookmarkToPath = function(pathItem, event) {
+        if(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        if(!canMoveDraggedBookmarkIntoPath(pathItem)) {
+            $scope.endBookmarkDrag();
+            return;
+        }
+
+        Apps.moveBookmark($scope.draggedBookmarkId, {
+            parentId: bookmarkPathParentId(pathItem)
+        }).then(function() {
+            loadBookmarks($scope.bookmarkFolderId);
+        }, function() {
+            window.alert($scope.msg('bookmarkOperationFailed'));
+        });
+
+        $scope.endBookmarkDrag();
     };
 
     $scope.openAddBookmark = function(event) {
@@ -853,6 +954,8 @@ controllers.controller('MainController',
             return;
         }
 
+        targetIndex = bookmarkDropIndex(targetIndex);
+
         Apps.moveBookmark($scope.draggedBookmarkId, {
             parentId: $scope.bookmarkFolderId,
             index: targetIndex
@@ -900,6 +1003,7 @@ controllers.controller('MainController',
         targetIndex = Math.min(
             page.index * $scope.bookmarkPageSize,
             Math.max(0, $scope.allBookmarks.length - 1));
+        targetIndex = bookmarkDropIndex(targetIndex);
 
         Apps.moveBookmark($scope.draggedBookmarkId, {
             parentId: $scope.bookmarkFolderId,
